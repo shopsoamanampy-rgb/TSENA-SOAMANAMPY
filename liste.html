@@ -184,8 +184,7 @@ tr:hover{background:#1e2a3a}
 </div>
 
 <script>
-const STORAGE_KEY='canalplus_operations';
-const API_URL='https://canalplus-api.nomenaservice104.workers.dev';
+const STORAGE_KEY='soamanampycanalplus_operations';
 let editIndex=-1;
 let contextMenuItemIndex=-1;
 let cloudDataCache=[];
@@ -384,7 +383,6 @@ const photoSignal=type==='vente'&&p3?await readFileAsDataURL(p3):(old.photoSigna
 const photoParabole=type==='vente'&&p4?await readFileAsDataURL(p4):(old.photoParabole||'');
 data[editIndex]={...data[editIndex],nom:document.getElementById('editNom').value.trim(),prenom:document.getElementById('editPrenom').value.trim(),contact:document.getElementById('editContact').value.trim(),adresse:document.getElementById('editAdresse').value.trim(),spOk:document.getElementById('editSpOk').checked,source,technicien:type==='vente'?technicien:'',numCarte:document.getElementById('editNumCarte').value.trim(),numDecodeur:document.getElementById('editNumDecodeur').value.trim(),bouquet:document.getElementById('editBouquet').value.trim(),montant,commissionToi,commissionSource,commissionTech,type,date:document.getElementById('editDate').value||data[editIndex].date,heure:document.getElementById('editHeure').value||data[editIndex].heure,statut:document.getElementById('editStatut').value,photoDecodeur,photoCarte,photoSignal,photoParabole};
 saveData(data);
-await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data[editIndex])}).catch(()=>{});
 closeEdit();
 renderTable();
 maybeNotify();
@@ -404,7 +402,7 @@ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
 const url=URL.createObjectURL(blob);
 const a=document.createElement('a');
 a.href=url;
-a.download='canalplus_operations.json';
+a.download='soamanampycanalplus_operations.json';
 a.click();
 URL.revokeObjectURL(url);
 }
@@ -412,7 +410,7 @@ function importJSON(event){
 const file=event.target.files[0];
 if(!file)return;
 const reader=new FileReader();
-reader.onload=e=>{try{const parsed=JSON.parse(e.target.result);if(!Array.isArray(parsed)){alert('JSON doit être un tableau');return}saveData(parsed);cloudDataCache=[];renderTable();maybeNotify();alert('Import OK')}catch(err){alert('JSON invalide')}};
+reader.onload=e=>{try{const parsed=JSON.parse(e.target.result);if(!Array.isArray(parsed)){alert('JSON doit être un tableau');return}saveData(parsed);renderTable();maybeNotify();alert('Import OK')}catch(err){alert('JSON invalide')}};
 reader.readAsText(file);
 event.target.value='';
 }
@@ -438,24 +436,7 @@ function editFromContext(){if(contextMenuItemIndex>=0)openEdit(contextMenuItemIn
 function printFromContext(){if(contextMenuItemIndex>=0)printReceipt(contextMenuItemIndex);contextMenu.classList.remove('show')}
 function historyFromContext(){if(contextMenuItemIndex>=0){const data=getLoadData()[contextMenuItemIndex];openHistory(data.nom||'');}contextMenu.classList.remove('show')}
 function deleteFromContext(){if(contextMenuItemIndex>=0)deleteItem(contextMenuItemIndex);contextMenu.classList.remove('show')}
-async function loadFromCloud(){
-try{
-const res=await fetch(API_URL,{method:'GET'});
-if(!res.ok)throw new Error('HTTP '+res.status);
-const json=await res.json();
-const clients=Array.isArray(json.clients)?json.clients:[];
-if(clients.length){
-cloudDataCache=clients.map(x=>({...x,heure:normalizeTime(x.heure||'')}));
-saveData(cloudDataCache);
-}
-}catch(e){
-cloudDataCache=[];
-}
-renderTable();
-maybeNotify();
-}
-window.addEventListener('storage',()=>{renderTable();maybeNotify()});
-document.addEventListener('DOMContentLoaded',()=>{loadFromCloud()});
+document.addEventListener('DOMContentLoaded',()=>{renderTable();maybeNotify()});
 </script>
 </body>
 </html>
