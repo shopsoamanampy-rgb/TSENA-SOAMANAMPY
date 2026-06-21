@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOMENA SERVICE AMBATOLAMPY 104</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: Arial, sans-serif;
+    }
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      width: 320px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 22px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { background: #5568d3; }
+    .error {
+      color: #e74c3c;
+      text-align: center;
+      margin-top: 15px;
+      display: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>NOMENA SERVICE 104</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="verifierConnexion()">Se connecter</button>
+    <div class="error" id="erreur"></div>
+  </div>
+
+  <script>
+    const EMAIL_CORRECT = 'nomenaservice104@gmail.com';
+    const PASSWORD_CORRECT = 'Rises104.';
+
+    function verifierConnexion() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const erreur = document.getElementById('erreur');
+
+      if (email === EMAIL_CORRECT && password === PASSWORD_CORRECT) {
+        localStorage.setItem('siteConnecte', 'true');
+        window.location.href = 'index.html';
+      } else {
+        erreur.textContent = '❌ Email ou mot de passe incorrect';
+        erreur.style.display = 'block';
+      }
+    }
+
+    if (localStorage.getItem('siteConnecte') === 'true') {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
