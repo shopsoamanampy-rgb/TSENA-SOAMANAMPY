@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOA MANAMPY SHOP - Saisie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:#eef2f7;color:#e9eef5;line-height:1.5;min-height:100vh}
+    .header{background:#16202d;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+    .header h1{font-size:18px;color:#eaf1fb;font-weight:700}
+    .nav-btn{background:#2f6fed;color:#fff;border:none;padding:7px 13px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .nav-btn:hover{opacity:.9}
+    .nav-links{display:flex;gap:6px;flex-wrap:wrap}
+    .container{max-width:620px;margin:16px auto;padding:0 12px}
+    .card{background:#16202d;border-radius:8px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.12);color:#eef4fb}
+    .card h2{font-size:15px;margin-bottom:12px;color:#f2f6fb;font-weight:600}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .form-group{margin-bottom:0}
+    .form-group label{display:block;font-size:11px;color:#b8c4d4;margin-bottom:3px;font-weight:500}
+    .form-group input,.form-group select,.form-group textarea{
+      width:100%;
+      padding:8px 10px;
+      border:1px solid #415063;
+      border-radius:5px;
+      background:#1a2431;
+      color:#ffffff;
+      font-size:13px;
+      font-family:inherit;
+      font-weight:500;
+    }
+    .form-group input::placeholder,.form-group textarea::placeholder{
+      color:#aeb9c7;
+      opacity:1;
+      font-weight:400;
+    }
+    .form-group select{color:#ffffff}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+      outline:none;
+      border-color:#2f6fed;
+      box-shadow:0 0 0 2px rgba(47,111,237,.15);
+    }
+    .form-group textarea{resize:vertical;min-height:60px}
+    .full-width{grid-column:1/-1}
+    .contact-group{max-width:190px}
+    .checkbox-group{display:flex;align-items:center;gap:8px;padding-top:18px}
+    .checkbox-group label{margin:0;font-size:12px;color:#b8c4d4}
+    .checkbox-group input{width:auto;accent-color:#2f6fed}
+    .btn-group{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+    button{border:none;padding:7px 13px;border-radius:5px;cursor:pointer;font-weight:600;font-size:12px}
+    .btn-primary{background:#2f6fed;color:#fff;flex:1}
+    .btn-secondary{background:#415063;color:#eef4fb;flex:1}
+    .btn-print{background:#f59e0b;color:#fff;flex:1}
+    button:hover{opacity:.92}
+    .hidden{display:none !important}
+    .info-box{background:#1a2431;border-radius:5px;padding:8px;margin-top:10px;font-size:10px;color:#94a3b8}
+    .info-box strong{color:#b8c4d4}
+    .commission-display{background:#1a2431;border-radius:5px;padding:8px;margin-top:8px;font-size:11px}
+    .commission-display div{margin:3px 0}
+    .commission-toi{color:#22c55e;font-weight:700}
+    .commission-source{color:#38bdf8;font-weight:600}
+    .commission-tech{color:#f59e0b;font-weight:600}
+    .receipt-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:99999;padding:10px}
+    .receipt-modal.show{display:flex}
+    .receipt-content{
+      background:#fff;
+      color:#000;
+      width:320px;
+      max-width:100%;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 8px 30px rgba(0,0,0,.4);
+    }
+    .receipt-header{
+      background:#fff;
+      color:#000;
+      padding:12px;
+      text-align:center;
+      border-bottom:2px solid #000;
+      font-weight:700;
+    }
+    .receipt-header h3{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    .receipt-header .brand{
+      margin-top:5px;
+      font-size:18px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+    }
+    .receipt-header .phone{
+      margin-top:6px;
+      font-size:19px;
+      font-weight:900;
+      letter-spacing:.6px;
+    }
+    .receipt-body{
+      padding:8px 6px;
+      font-size:12px;
+      line-height:1.25;
+      font-family:'Courier New',monospace;
+      background:#fff;
+      color:#000;
+      font-weight:700;
+    }
+    .receipt-row{
+      display:flex;
+      align-items:baseline;
+      justify-content:flex-start;
+      gap:4px;
+      margin:2px 0;
+      padding:0;
+      font-weight:700;
+    }
+    .receipt-label{
+      flex:0 0 auto;
+      white-space:nowrap;
+      font-weight:800;
+      color:#000;
+    }
+    .receipt-value{
+      flex:1;
+      min-width:0;
+      text-align:left;
+      color:#000;
+      word-break:break-word;
+      font-weight:700;
+    }
+    .receipt-divider{
+      margin:5px 0;
+      border-top:2px solid #000;
+    }
+    .receipt-footer{
+      text-align:center;
+      padding:10px;
+      font-size:12px;
+      font-weight:800;
+      color:#000;
+      border-top:2px solid #000;
+      margin-top:6px;
+    }
+    .receipt-actions{
+      display:flex;
+      gap:5px;
+      padding:10px;
+      background:#f5f5f5;
+      border-top:1px solid #ddd;
+    }
+    .receipt-actions button{flex:1;padding:8px;font-size:12px}
+
+    @media print {
+      body * { visibility: hidden; }
+      .receipt-modal, .receipt-modal * { visibility: visible; }
+      .receipt-modal { position: fixed; inset: 0; background: #fff; display: block; padding: 0; }
+      .receipt-content { position: absolute; left: 0; top: 0; width: 80mm; box-shadow: none; border-radius: 0; }
+      .receipt-actions { display: none !important; }
+      .receipt-header h3 { font-size: 18px; font-weight: 800; }
+      .receipt-header .brand { font-size: 18px; font-weight: 800; }
+      .receipt-header .phone { font-size: 19px; font-weight: 900; }
+      .receipt-body { font-size: 12px; font-weight: 700; padding: 8px 6px; line-height: 1.25; }
+      .receipt-row { gap: 4px; }
+      .receipt-label, .receipt-value, .receipt-footer { font-weight: 800; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1> SOA MANAMPY SHOP </h1>
+    <div class="nav-links">
+      <a href="acceuil.html" class="nav-btn">🏠 Acceuil</a>
+      <a href="commissions.html" class="nav-btn">💰 Commissions</a>
+      <a href="stock.html" class="nav-btn">📦 Stock</a>
+      <a href="liste.html" class="nav-btn">📋 Liste</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2 id="formTitle">➕ Nouvelle opération</h2>
+      
+      <form id="opForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Type *</label>
+            <select id="type" required onchange="renderVisibility();renderCalc()">
+              <option value="vente">Vente</option>
+              <option value="reabo">Réabonnement</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Statut</label>
+            <select id="statut">
+              <option value="OK">OK</option>
+              <option value="En attente" selected>En attente</option>
+              <option value="Annulé">Annulé</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="date" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Heure *</label>
+            <input type="time" id="heure" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Nom *</label>
+            <input type="text" id="nom" placeholder="Nom" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" id="prenom" placeholder="Prénom">
+          </div>
+          
+          <div class="form-group contact-group">
+            <label>Contact</label>
+            <input type="text" id="contact" placeholder="00261-34-93-603-35" maxlength="20" inputmode="numeric">
+          </div>
+          
+          <div class="form-group">
+            <label>Source</label>
+            <input type="text" id="source" placeholder="Ex: Facebook, Voisin...">
+          </div>
+          
+          <div class="form-group">
+            <label>Technicien</label>
+            <input type="text" id="technicien" placeholder="Nom du tech">
+          </div>
+          
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" id="adresse" placeholder="Adresse">
+          </div>
+          
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="spOk">
+            <label for="spOk">SP ok</label>
+          </div>
+          
+          <div class="form-group" id="carteGroup">
+            <label>N° Carte *</label>
+            <input type="text" id="numCarte" placeholder="Numéro carte">
+          </div>
+          
+          <div class="form-group" id="decodeurGroup">
+            <label>N° Décodeur</label>
+            <input type="text" id="numDecodeur" placeholder="Numéro décodeur">
+          </div>
+          
+          <div class="form-group" id="bouquetGroup">
+            <label>Bouquet *</label>
+            <select id="bouquet" required>
+              <option value="">Choisir bouquet...</option>
+              <option value="Access">Access</option>
+              <option value="Evasion">Evasion</option>
+              <option value="Access+">Access+</option>
+              <option value="Tout Canal">Tout Canal</option>
+              <option value="Non précisé">Non précisé</option>
+            </select>
+          </div>
+          
+          <div class="form-group" id="montantGroup">
+            <label>Montant (Ar) *</label>
+            <input type="number" id="montant" placeholder="0" min="0" required>
+          </div>
+        </div>
+
+        <div class="commission-display" id="commissionBox">
+          <div><strong>ℹ️ Commissions :</strong></div>
+          <div class="commission-toi">👉 Ta commission : <span id="commToi">0</span> Ar</div>
+          <div class="commission-source">📢 Source : <span id="commSource">0</span> Ar</div>
+          <div class="commission-tech">🔧 Tech : <span id="commTech">0</span> Ar</div>
+        </div>
+
+        <div class="info-box">
+          <strong>Vente :</strong> 25k fixe (Source:5k, Tech:10k, Toi:10k)<br>
+          <strong>Réabo :</strong> 6% (sans source) ou 3%+3% (avec source)
+        </div>
+
+        <div class="btn-group">
+          <button type="button" class="btn-secondary" onclick="resetForm()">🔄 Effacer</button>
+          <button type="button" class="btn-print" onclick="showReceiptPreview()">📑 Voir reçu</button>
+          <button type="submit" class="btn-primary">💾 Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="receipt-modal" id="receiptModal">
+    <div class="receipt-content">
+      <div class="receipt-header">
+        <h3>SOA MANAMPY</h3>
+        <div class="brand">SHOP</div>
+        <div class="phone">0338120736</div>
+      </div>
+      
+      <div class="receipt-body" id="receiptPreview"></div>
+      
+      <div class="receipt-footer">
+        Merci pour votre confiance !
+      </div>
+      
+      <div class="receipt-actions no-print">
+        <button class="btn-secondary" onclick="closeReceiptPreview()">Fermer</button>
+        <button class="btn-primary" onclick="printReceipt()">🖨️ Imprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'soamanampy_operations';
+    let editId = null;
+    
+    function normalizeContact(value) {
+      return String(value || '').trim().replace(/\s+/g, '');
+    }
+
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function setDefaultDateTime() {
+      const now = new Date();
+      document.getElementById('date').value =
+        now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      document.getElementById('heure').value =
+        String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    }
+
+    function renderVisibility() {
+      const type = document.getElementById('type').value;
+      document.getElementById('decodeurGroup').classList.toggle('hidden', type !== 'vente');
+      document.getElementById('bouquetGroup').classList.toggle('hidden', type === 'vente');
+      document.getElementById('montantGroup').classList.toggle('hidden', type === 'vente');
+      document.getElementById('bouquet').required = type !== 'vente';
+      document.getElementById('montant').required = type !== 'vente';
+    }
+
+    function calcSaleCommission(source, technicien) {
+      const hasSource = String(source || '').trim() !== '';
+      const hasTech = String(technicien || '').trim() !== '';
+      let commissionSource = 0;
+      let commissionTech = 0;
+      let commissionToi = 0;
+
+      if (hasSource && hasTech) {
+        commissionSource = 5000;
+        commissionTech = 10000;
+        commissionToi = 10000;
+      } else if (!hasSource && !hasTech) {
+        commissionToi = 25000;
+      } else if (hasSource && !hasTech) {
+        commissionSource = 5000;
+        commissionToi = 20000;
+      } else if (!hasSource && hasTech) {
+        commissionTech = 10000;
+        commissionToi = 15000;
+      }
+
+      return { commissionToi, commissionSource, commissionTech, montant: 25000 };
+    }
+
+    function calcReaboCommission(source, montant) {
+      const hasSource = String(source || '').trim() !== '';
+      const base = Number(montant) || 0;
+
+      if (hasSource) {
+        return {
+          commissionToi: base * 0.03,
+          commissionSource: base * 0.03,
+          commissionTech: 0,
+          montant: base
+        };
+      }
+
+      return {
+        commissionToi: base * 0.06,
+        commissionSource: 0,
+        commissionTech: 0,
+        montant: base
+      };
+    }
+
+    function renderCalc() {
+      const type = document.getElementById('type').value;
+      const source = document.getElementById('source').value.trim();
+      const technicien = document.getElementById('technicien').value.trim();
+      const montantSaisi = document.getElementById('montant').value;
+
+      const commissions = type === 'vente'
+        ? calcSaleCommission(source, technicien)
+        : calcReaboCommission(source, montantSaisi);
+
+      if (type === 'vente') {
+        document.getElementById('montant').value = 25000;
+      }
+
+      document.getElementById('commToi').textContent = Math.round(commissions.commissionToi).toLocaleString('fr-FR');
+      document.getElementById('commSource').textContent = Math.round(commissions.commissionSource).toLocaleString('fr-FR');
+      document.getElementById('commTech').textContent = Math.round(commissions.commissionTech).toLocaleString('fr-FR');
+    }
+
+    function resetForm() {
+      document.getElementById('opForm').reset();
+      editId = null;
+      setDefaultDateTime();
+      document.getElementById('formTitle').textContent = '➕ Nouvelle opération';
+      renderVisibility();
+      renderCalc();
+    }
+
+    function formatDateFR(dateStr) {
+      if (!dateStr) return '';
+      const [year, month, day] = dateStr.split('-');
+      return day + '/' + month + '/' + year;
+    }
+
+    function addDays(dateStr, days) {
+      const [year, month, day] = dateStr.split('-');
+      const d = new Date(year, month - 1, day);
+      d.setDate(d.getDate() + Number(days));
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function showReceiptPreview() {
+      const type = document.getElementById('type').value;
+      const dateVal = document.getElementById('date').value;
+      const heure = document.getElementById('heure').value;
+      const nom = document.getElementById('nom').value.trim() || '-';
+      const prenom = document.getElementById('prenom').value.trim() || '-';
+      const contact = normalizeContact(document.getElementById('contact').value) || '-';
+      const adresse = document.getElementById('adresse').value.trim() || '-';
+      const numCarte = document.getElementById('numCarte').value.trim() || '-';
+      const numDecodeur = document.getElementById('numDecodeur').value.trim() || '-';
+      const bouquet = document.getElementById('bouquet').value.trim() || '-';
+      const montantSaisi = document.getElementById('montant').value;
+
+      const commissions = type === 'vente'
+        ? calcSaleCommission(document.getElementById('source').value.trim(), document.getElementById('technicien').value.trim())
+        : calcReaboCommission(document.getElementById('source').value.trim(), montantSaisi);
+
+      const typeLabel = type === 'reabo' ? 'Réabonnement' : 'Vente';
+      const montant = commissions.montant;
+
+      const dateFin = type === 'reabo' ? addDays(dateVal, 29) : '';
+
+      let h = '';
+      h += '<div class="receipt-divider"></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Type:</span><span class="receipt-value">' + typeLabel + '</span></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Date:</span><span class="receipt-value">' + formatDateFR(dateVal) + '</span></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Heure:</span><span class="receipt-value">' + heure + '</span></div>';
+      
+      if (type === 'reabo') {
+        h += '<div class="receipt-row"><span class="receipt-label">Durée:</span><span class="receipt-value">30 jours</span></div>';
+        h += '<div class="receipt-divider"></div>';
+      }
+      
+      h += '<div class="receipt-row"><span class="receipt-label">Nom:</span><span class="receipt-value">' + nom + '</span></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Prénom:</span><span class="receipt-value">' + prenom + '</span></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Contact:</span><span class="receipt-value">' + contact + '</span></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Adresse:</span><span class="receipt-value">' + adresse + '</span></div>';
+      h += '<div class="receipt-divider"></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Carte:</span><span class="receipt-value">' + numCarte + '</span></div>';
+      h += '<div class="receipt-row"><span class="receipt-label">Décodeur:</span><span class="receipt-value">' + numDecodeur + '</span></div>';
+
+      if (type === 'reabo') {
+        h += '<div class="receipt-row"><span class="receipt-label">Bouquet:</span><span class="receipt-value">' + bouquet + '</span></div>';
+        h += '<div class="receipt-divider"></div>';
+        h += '<div class="receipt-row"><span class="receipt-label">Montant:</span><span class="receipt-value">' + montant.toLocaleString('fr-FR') + ' Ar</span></div>';
+      }
+
+      h += '<div class="receipt-divider"></div>';
+      document.getElementById('receiptPreview').innerHTML = h;
+      document.getElementById('receiptModal').classList.add('show');
+    }
+
+    function closeReceiptPreview() {
+      document.getElementById('receiptModal').classList.remove('show');
+    }
+
+    function printReceipt() {
+      window.print();
+    }
+
+    document.getElementById('opForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const type = document.getElementById('type').value;
+      const source = document.getElementById('source').value.trim();
+      const technicien = document.getElementById('technicien').value.trim();
+      const montantSaisi = document.getElementById('montant').value;
+
+      const commissions = type === 'vente'
+        ? calcSaleCommission(source, technicien)
+        : calcReaboCommission(source, montantSaisi);
+
+      const operation = {
+        id: editId || generateId(),
+        type,
+        statut: document.getElementById('statut').value,
+        date: document.getElementById('date').value,
+        heure: document.getElementById('heure').value,
+        nom: document.getElementById('nom').value.trim(),
+        prenom: document.getElementById('prenom').value.trim(),
+        contact: normalizeContact(document.getElementById('contact').value),
+        source,
+        technicien: type === 'vente' ? technicien : '',
+        adresse: document.getElementById('adresse').value.trim(),
+        spOk: document.getElementById('spOk').checked,
+        numCarte: document.getElementById('numCarte').value.trim(),
+        numDecodeur: document.getElementById('numDecodeur').value.trim(),
+        bouquet: type === 'reabo' ? document.getElementById('bouquet').value.trim() : '',
+        montant: commissions.montant,
+        commissionToi: commissions.commissionToi,
+        commissionSource: commissions.commissionSource,
+        commissionTech: commissions.commissionTech
+      };
+
+      const data = loadData();
+      if (editId) {
+        const index = data.findIndex(x => x.id === editId);
+        if (index >= 0) data[index] = operation;
+      } else {
+        data.push(operation);
+      }
+      saveData(data);
+
+      alert(editId ? '✅ Modifié !' : '✅ Enregistré !');
+
+      if (!editId) {
+        resetForm();
+      } else {
+        window.history.replaceState({}, {}, window.location.pathname);
+        editId = null;
+        document.getElementById('formTitle').textContent = '➕ Nouvelle opération';
+      }
+    });
+
+    document.getElementById('source').addEventListener('input', renderCalc);
+    document.getElementById('technicien').addEventListener('input', renderCalc);
+    document.getElementById('montant').addEventListener('input', renderCalc);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setDefaultDateTime();
+      renderVisibility();
+      renderCalc();
+    });
+  </script>
+</body>
+</html>
