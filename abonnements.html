@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Abonnements à rappeler</title>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#eef2f7;color:#e9eef5}
+.container{max-width:100%;margin:0 auto;padding:8px;color:#dfe7f2}
+.topbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-bottom:8px}
+h1{margin:0;font-size:20px;color:#eaf1fb}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+button{border:none;padding:5px 8px;border-radius:5px;cursor:pointer;font-weight:600;background:#2f6fed;color:#fff;font-size:11px}
+button:hover{opacity:.92}
+.btn-secondary{background:#415063;color:#eef4fb}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;margin-bottom:8px}
+.card{background:#16202d;border-radius:6px;padding:8px;box-shadow:0 2px 6px rgba(0,0,0,.12);color:#eef4fb}
+.card .label{color:#b8c4d4;font-size:10px;margin-bottom:2px}
+.card .value{font-size:16px;font-weight:700;color:#fff}
+.table-wrap{background:#141c26;border-radius:6px;overflow:auto;box-shadow:0 2px 6px rgba(0,0,0,.12);max-width:100%}
+table{width:100%;border-collapse:collapse;color:#e9eef5;min-width:980px}
+th,td{padding:5px 4px;border-bottom:1px solid #243042;text-align:left;vertical-align:middle;font-size:10px;white-space:nowrap}
+th{background:#1b2532;position:sticky;top:0;z-index:1;color:#f2f6fb;font-weight:700;font-size:10px}
+tr:hover{background:#1e2a3a}
+.empty{padding:20px;text-align:center;color:#c7d3e0}
+.hidden{display:none}
+.tag{display:inline-block;padding:2px 6px;border-radius:999px;background:#dc3545;color:#fff;font-weight:700;font-size:9px}
+.renew{background:#f59e0b}
+.ok{background:#198754}
+.back-link{display:inline-block;text-decoration:none;background:#415063;color:#eef4fb;padding:5px 8px;border-radius:5px;font-weight:600;font-size:11px}
+.small{font-size:11px;color:#b8c4d4}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <h1>🔔 Abonnements qui finissent dans 3 jours</h1>
+    <div class="actions">
+      <a class="back-link" href="liste.html">⬅ Retour</a>
+      <button onclick="refreshPage()">🔄 Actualiser</button>
+      <button onclick="exportPDF()">📄 PDF Liste J-3</button>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="label">Total à rappeler</div>
+      <div class="value" id="totalDue">0</div>
+    </div>
+    <div class="card">
+      <div class="label">Message</div>
+      <div class="value small" id="messageLine">Aucune donnée chargée.</div>
+    </div>
+  </div>
+
+  <div class="table-wrap" id="pdfContent">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Contact</th>
+          <th>Type</th>
+          <th>Date abo</th>
+          <th>Fin</th>
+          <th>Jours restants</th>
+          <th>Source</th>
+          <th>Tech</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty hidden" id="emptyState">Aucun abonnement qui finit dans 3 jours.</div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='canalplus_operations';
+
+function escapeHtml(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function loadData(){try{const raw=localStorage.getItem(STORAGE_KEY);const parsed=raw?JSON.parse(raw):[];return Array.isArray(parsed)?parsed:[]}catch(e){return[]}}
+function pad2(n){return String(n).padStart(2,'0')}
+function toDateOnly(v){if(!v)return'';if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return v;const d=new Date(v);if(isNaN(d.getTime()))return String(v).slice(0,10);return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
+function addDays(dateStr,days){const d=new Date(dateStr+'T00:00:00');if(isNaN(d.getTime()))return'';d.setDate(d.getDate()+Number(days||0));return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
+function diffDays(a,b){const da=new Date(a+'T00:00:00');const db=new Date(b+'T00:00:00');if(isNaN(da.getTime())||isNaN(db.getTime()))return null;return Math.round((db-da)/(1000*60*60*24))}
+function formatDate(v){if(!v)return'';const d=new Date(v);if(isNaN(d.getTime()))return v;return d.toLocaleDateString('fr-FR')}
+function formatMoney(v){const n=Number(v||0);return n.toLocaleString('fr-FR')+' Ar'}
+
+function isSubscriptionLike(item){
+  return String(item.type||'').toLowerCase()==='reabo' || item.dateAbonnement || item.dateFin || item.abonnement;
+}
+function getSubscriptionDateAbonnement(item){
+  return toDateOnly(item.dateAbonnement||item.date_abonnement||item.date||'');
+}
+function getSubscriptionDateFin(item){
+  const d=toDateOnly(item.dateFin||item.date_fin||'');
+  if(d)return d;
+  const start=getSubscriptionDateAbonnement(item);
+  const duration=Number(item.dureeAbonnement||item.duree_abonnement||30);
+  return start?addDays(start,duration):'';
+}
+function getSubscriptionsDueIn(daysBefore=3){
+  const today=toDateOnly(new Date().toISOString());
+  const data=loadData();
+  return data.map((item,idx)=>{
+    const start=getSubscriptionDateAbonnement(item);
+    const end=getSubscriptionDateFin(item);
+    const daysLeft=end?diffDays(today,end):null;
+    return {...item,__index:idx,__dateAbonnement:start,__dateFin:end,__daysLeft:daysLeft};
+  }).filter(item=>{
+    if(!isSubscriptionLike(item))return false;
+    if(!item.__dateFin||item.__daysLeft===null)return false;
+    return item.__daysLeft===daysBefore;
+  }).sort((a,b)=>String(a.__dateFin).localeCompare(String(b.__dateFin)));
+}
+
+function exportPDF(){
+  const items=getSubscriptionsDueIn(3);
+  if(!items.length){
+    alert('Aucun abonnement à rappeler pour générer le PDF.');
+    return;
+  }
+  
+  const tempDiv=document.createElement('div');
+  tempDiv.style.background='#fff';
+  tempDiv.style.color='#000';
+  tempDiv.style.padding='20px';
+  tempDiv.style.width='100%';
+  tempDiv.style.fontFamily='Arial,sans-serif';
+  tempDiv.style.fontSize='12px';
+  
+  tempDiv.innerHTML=`
+    <h2 style="text-align:center;margin:0 0 10px;font-size:18px;color:#000;background:#fff">Abonnements à rappeler — J-3</h2>
+    <p style="text-align:center;margin:0 0 12px;font-size:11px;color:#000;background:#fff">Généré le ${new Date().toLocaleDateString('fr-FR')} ${new Date().toLocaleTimeString('fr-FR')}</p>
+    <table style="width:100%;border-collapse:collapse;color:#000;background:#fff">
+      <thead>
+        <tr>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Nom</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Prénom</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Contact</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Type</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Date abo</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Fin</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Jours</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Source</th>
+          <th style="border:1px solid #000;padding:6px;color:#000;background:#fff">Tech</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(item=>`
+          <tr>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(item.nom||'')}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(item.prenom||'')}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(item.contact||'')}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(String(item.type||'reabo').toUpperCase())}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(item.__dateAbonnement||'')}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(item.__dateFin||'')}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(String(item.__daysLeft))}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(item.source||'')}</td>
+            <td style="border:1px solid #000;padding:6px;color:#000;background:#fff">${escapeHtml(item.technicien||'')}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  
+  document.body.appendChild(tempDiv);
+  
+  html2pdf().set({
+    margin:10,
+    filename:'abonnements_j3_'+new Date().toISOString().slice(0,10)+'.pdf',
+    html2canvas:{scale:2,useCORS:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}
+  }).from(tempDiv).save().then(()=>{
+    document.body.removeChild(tempDiv);
+  });
+}
+
+function renderPage(){
+  const items=getSubscriptionsDueIn(3);
+  document.getElementById('totalDue').textContent=items.length;
+  document.getElementById('messageLine').textContent=`Total: ${items.length} abonnement(s) à rappeler aujourd'hui pour une fin dans 3 jours`;
+
+  const tbody=document.getElementById('tableBody');
+  const empty=document.getElementById('emptyState');
+  tbody.innerHTML='';
+
+  if(!items.length){
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  items.forEach(item=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${escapeHtml(item.nom||'')}</td>
+      <td>${escapeHtml(item.prenom||'')}</td>
+      <td>${escapeHtml(item.contact||'')}</td>
+      <td><span class="tag renew">${escapeHtml(String(item.type||'reabo').toUpperCase())}</span></td>
+      <td>${escapeHtml(item.__dateAbonnement||'')}</td>
+      <td>${escapeHtml(item.__dateFin||'')}</td>
+      <td>${escapeHtml(String(item.__daysLeft))}</td>
+      <td>${escapeHtml(item.source||'')}</td>
+      <td>${escapeHtml(item.technicien||'')}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function refreshPage(){renderPage()}
+window.addEventListener('storage',renderPage);
+document.addEventListener('DOMContentLoaded',renderPage);
+</script>
+</body>
+</html>
