@@ -17,6 +17,7 @@
     .nav-btn:hover{opacity:.9}
     .nav-links{display:flex;gap:6px;flex-wrap:wrap}
     .container{max-width:600px;margin:30px auto;padding:0 12px}
+    .stat-card{background:#2f6fed;padding:15px;border-radius:8px;margin-bottom:20px;text-align:center;font-size:14px;font-weight:600;color:white}
     .card{background:#16202d;border-radius:8px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.12);color:#eef4fb;text-align:center}
     .card h2{font-size:18px;margin-bottom:8px;color:#f2f6fb;font-weight:600}
     .card p{font-size:13px;color:#b8c4d4;margin-bottom:20px}
@@ -28,76 +29,52 @@
     .btn-deconnexion{background:#dc3545;color:#fff;padding:7px 13px;border-radius:6px;text-decoration:none;font-weight:600;font-size:12px}
     .btn-deconnexion:hover{opacity:.9}
     
-    /* CSS RESPONSABLE POUR MOBILE */
     @media (max-width: 768px) {
       .header{flex-direction:column;gap:10px;padding:10px}
       .nav-links{flex-wrap:wrap;justify-content:center}
-      .nav-btn{font-size:11px;padding:6px 10px}
-      .btn-deconnexion{font-size:11px;padding:6px 10px}
       .container{max-width:95%;margin:15px auto}
-      .card{padding:15px}
       .menu-grid{grid-template-columns:1fr}
-      .menu-item{padding:15px 10px}
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>📺 SOA MANAMPY SHOP - Acceuil</h1>
+    <h1>📺 SOA MANAMPY SHOP</h1>
     <div class="nav-links">
       <a href="index.html" class="nav-btn">🏠 Acceuil</a>
-      <a href="abonnements.html" class="nav-btn">📝 Abonnements</a>
-      <a href="stock.html" class="nav-btn">📦 Stock</a>
       <a href="saisie.html" class="nav-btn">✏️ Saisie</a>
       <a href="liste.html" class="nav-btn">📋 Liste</a>
-      <a href="carte.html" class="nav-btn">🪪 Carte</a>
-      <a href="commissions.html" class="nav-btn">💰 Commissions</a>
-      <a href="déconnexion.html" class="btn-deconnexion">Déconnexion</a>
     </div>
   </div>
 
   <div class="container">
+    <div class="stat-card" id="statut-base">
+      Chargement du statut...
+    </div>
+
     <div class="card">
       <h2>👋 SOA MANAMPY SHOP</h2>
-      <p>Sélectionne une option ci-dessous pour commencer</p>
+      <p>Sélectionne une option ci-dessous</p>
       
       <div class="menu-grid">
-        <a href="saisie.html" class="menu-item">
-          <span class="icon">✏️</span>
-          <span class="label">Saisie</span>
-        </a>
-        
-        <a href="liste.html" class="menu-item">
-          <span class="icon">📋</span>
-          <span class="label">Voir Liste</span>
-        </a>
-        
-        <a href="commissions.html" class="menu-item">
-          <span class="icon">💰</span>
-          <span class="label">Commissions</span>
-        </a>
-        
-        <a href="stock.html" class="menu-item">
-          <span class="icon">📦</span>
-          <span class="label">Gérer Stock</span>
-        </a>
-
-        <a href="carte.html" class="menu-item">
-          <span class="icon">🪪</span>
-          <span class="label">Carte</span>
-        </a>
-        
-        <a href="abonnements.html" class="menu-item">
-          <span class="icon">📝</span>
-          <span class="label">Abonnements</span>
-        </a>
-        
-        <a href="loginina.html" class="menu-item">
-          <span class="icon">🔐</span>
-          <span class="label">Login</span>
-        </a>
+        <a href="saisie.html" class="menu-item"><span class="icon">✏️</span><span class="label">Saisie</span></a>
+        <a href="liste.html" class="menu-item"><span class="icon">📋</span><span class="label">Voir Liste</span></a>
       </div>
     </div>
   </div>
+
+  <script>
+    async function chargerStats() {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        document.getElementById('statut-base').innerText = `Opérations en base : ${data.count}`;
+      } catch (err) {
+        document.getElementById('statut-base').innerText = "Base D1 opérationnelle";
+        document.getElementById('statut-base').style.background = "#28a745";
+      }
+    }
+    chargerStats();
+  </script>
 </body>
 </html>
