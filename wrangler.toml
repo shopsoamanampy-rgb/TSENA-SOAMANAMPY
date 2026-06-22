@@ -1,0 +1,7 @@
+name = "TSENA-SOAMANAMPY"
+compatibility_date = "2026-06-22"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "operations-db"
+database_id = "0aeb7684-730c-4ea3-a03c-6799828c36d3"
