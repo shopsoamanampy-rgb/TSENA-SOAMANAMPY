@@ -2,15 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "tsenasoamanampy",
   "compatibility_date": "2026-06-22",
-  "observability": {
-    "enabled": true
-  },
+  "main": "./src/index.js",
   "assets": {
     "directory": "./public"
   },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "observability": {
+    "enabled": true
+  },
   "d1_databases": [
     {
       "binding": "DB",
