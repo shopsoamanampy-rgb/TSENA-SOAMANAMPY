@@ -1,6 +1,6 @@
 name = "tsenasoamanampy"
-main = "src/index.ts"
 compatibility_date = "2026-06-22"
+assets = { directory = "." }
 
 [[d1_databases]]
 binding = "DB"
