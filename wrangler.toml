@@ -1,4 +1,4 @@
-name = "tsena-soamanampy"
+name = "smn"
 compatibility_date = "2026-06-22"
 main = "src/index.js"
 compatibility_flags = ["nodejs_compat"]
