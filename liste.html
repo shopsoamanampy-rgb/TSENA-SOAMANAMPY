@@ -184,7 +184,6 @@ tr:hover{background:#1e2a3a}
 </div>
 
 <script>
-const STORAGE_KEY = 'soamanampycanalplus_operations';
 let editIndex=-1;
 let contextMenuItemIndex=-1;
 let cloudDataCache=[];
@@ -197,12 +196,9 @@ function pad2(n){return String(n).padStart(2,'0')}
 function toDateOnly(v){if(!v)return'';if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return v;const d=new Date(v);if(isNaN(d.getTime()))return String(v).slice(0,10);return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
 function addDays(dateStr,days){const d=new Date(dateStr+'T00:00:00');if(isNaN(d.getTime()))return'';d.setDate(d.getDate()+Number(days||0));return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
 function diffDays(a,b){const da=new Date(a+'T00:00:00');const db=new Date(b+'T00:00:00');if(isNaN(da.getTime())||isNaN(db.getTime()))return null;return Math.round((db-da)/(1000*60*60*24))}
-function loadData(){try{const raw=localStorage.getItem(STORAGE_KEY);const parsed=raw?JSON.parse(raw):[];return Array.isArray(parsed)?parsed:[]}catch(e){return[]}}
-function saveData(data){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
-function formatDate(v){if(!v)return'';const s=String(v).trim();const d=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+'T00:00:00'):new Date(s);if(isNaN(d.getTime()))return s;return d.toLocaleDateString('fr-FR')}
-function formatMoney(v){const n=Number(v||0);return n.toLocaleString('fr-FR')+' Ar'}
-function normalizeTime(v){const s=String(v||'').trim();if(!s)return'';if(/^\d{4}$/.test(s))return s.slice(0,2)+':'+s.slice(2);if(/^\d{2}:\d{2}$/.test(s))return s;return s}
-function getLoadData(){return cloudDataCache.length?cloudDataCache:loadData()}
+async function loadData(){try{const res=await fetch('/api/operations');const json=await res.json();cloudDataCache=Array.isArray(json?.data)?json.data:[];return cloudDataCache}catch(e){cloudDataCache=[];return []}}
+function saveData(data){return data}
+function getLoadData(){return cloudDataCache}
 function getFilteredData(){
 const data=getLoadData();
 const q=document.getElementById('searchInput').value.toLowerCase().trim();
@@ -232,6 +228,9 @@ document.getElementById('totalReabos').textContent=allData.filter(x=>x.type==='r
 document.getElementById('totalMontant').textContent=formatMoney(allData.reduce((sum,x)=>sum+Number(x.montant||0),0));
 document.getElementById('totalCommissionToi').textContent=formatMoney(allData.reduce((sum,x)=>sum+Number(x.commissionToi||0),0));
 }
+function formatDate(v){if(!v)return'';const s=String(v).trim();const d=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+'T00:00:00'):new Date(s);if(isNaN(d.getTime()))return s;return d.toLocaleDateString('fr-FR')}
+function formatMoney(v){const n=Number(v||0);return n.toLocaleString('fr-FR')+' Ar'}
+function normalizeTime(v){const s=String(v||'').trim();if(!s)return'';if(/^\d{4}$/.test(s))return s.slice(0,2)+':'+s.slice(2);if(/^\d{2}:\d{2}$/.test(s))return s;return s}
 function getReminders(daysBefore=3){
 const today=toDateOnly(new Date().toISOString());
 return getLoadData().map(item=>{
@@ -256,7 +255,8 @@ if(!('Notification' in window))return;
 if(Notification.permission==='granted'){new Notification('Abonnements à rappeler',{body:`${reminders.length} abonnement(s) finissent dans 3 jours.`})}
 else if(Notification.permission!=='denied'){Notification.requestPermission().then(permission=>{if(permission==='granted'){new Notification('Abonnements à rappeler',{body:`${reminders.length} abonnement(s) finissent dans 3 jours.`})}})}
 }
-function renderTable(){
+async function renderTable(){
+if(!cloudDataCache.length){await loadData()}
 renderSelectOptions();
 const data=getFilteredData();
 renderSummary();
@@ -436,7 +436,7 @@ function editFromContext(){if(contextMenuItemIndex>=0)openEdit(contextMenuItemIn
 function printFromContext(){if(contextMenuItemIndex>=0)printReceipt(contextMenuItemIndex);contextMenu.classList.remove('show')}
 function historyFromContext(){if(contextMenuItemIndex>=0){const data=getLoadData()[contextMenuItemIndex];openHistory(data.nom||'');}contextMenu.classList.remove('show')}
 function deleteFromContext(){if(contextMenuItemIndex>=0)deleteItem(contextMenuItemIndex);contextMenu.classList.remove('show')}
-document.addEventListener('DOMContentLoaded',()=>{renderTable();maybeNotify()});
+document.addEventListener('DOMContentLoaded',async()=>{await loadData();renderTable();maybeNotify()});
 </script>
 </body>
 </html>
