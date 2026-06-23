@@ -1,163 +1,101 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TSENA-SOAMANAMPY</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOA MANAMPY SHOP - Accueil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; margin: 24px; background: #f7f7f7; }
-    .card { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
-    h1 { margin-top: 0; }
-    form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
-    input, select, textarea, button { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font: inherit; }
-    textarea { min-height: 90px; grid-column: 1 / -1; }
-    .full { grid-column: 1 / -1; }
-    button { cursor: pointer; background: #0b5cff; color: white; border: none; }
-    button:hover { background: #0847c2; }
-    .status { margin-top: 14px; padding: 10px; border-radius: 8px; background: #eef6ff; }
-    ul { padding-left: 18px; }
-    .list { margin-top: 24px; }
-    .op { padding: 12px; border: 1px solid #eee; border-radius: 10px; margin-bottom: 10px; background: #fafafa; }
-    .op small { color: #666; }
+    html,body{margin:0;padding:0;width:100%;min-height:100vh}
+    *{box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#eef2f7;color:#e9eef5;line-height:1.5}
+    .header{background:#16202d;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+    .header h1{font-size:18px;color:#eaf1fb;font-weight:700}
+    .nav-btn{background:#2f6fed;color:#fff;border:none;padding:7px 13px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+    .nav-btn:hover{opacity:.9}
+    .nav-links{display:flex;gap:6px;flex-wrap:wrap}
+    .container{max-width:600px;margin:30px auto;padding:0 12px}
+    .card{background:#16202d;border-radius:8px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.12);color:#eef4fb;text-align:center}
+    .card h2{font-size:18px;margin-bottom:8px;color:#f2f6fb;font-weight:600}
+    .card p{font-size:13px;color:#b8c4d4;margin-bottom:20px}
+    .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+    .menu-item{background:#1a2431;border:none;padding:18px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;color:#eef4fb;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s}
+    .menu-item:hover{background:#2f6fed;transform:translateY(-2px)}
+    .menu-item .icon{font-size:32px}
+    .menu-item .label{font-size:12px}
+    .btn-deconnexion{background:#dc3545;color:#fff;padding:7px 13px;border-radius:6px;text-decoration:none;font-weight:600;font-size:12px}
+    .btn-deconnexion:hover{opacity:.9}
+    @media (max-width: 768px) {
+      .header{flex-direction:column;gap:10px;padding:10px}
+      .nav-links{flex-wrap:wrap;justify-content:center}
+      .nav-btn{font-size:11px;padding:6px 10px}
+      .btn-deconnexion{font-size:11px;padding:6px 10px}
+      .container{max-width:95%;margin:15px auto}
+      .card{padding:15px}
+      .menu-grid{grid-template-columns:1fr}
+      .menu-item{padding:15px 10px}
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>TSENA-SOAMANAMPY</h1>
-    <p>Si cette page s’affiche, alors ton déploiement Cloudflare fonctionne déjà.</p>
-    <p>Ensuite on ajoutera la sauvegarde et le chargement automatique avec D1.</p>
-
-    <form id="opForm">
-      <label>Type
-        <input name="type" placeholder="Installation" />
-      </label>
-
-      <label>Date
-        <input name="date" type="date" />
-      </label>
-
-      <label>Heure
-        <input name="heure" type="time" />
-      </label>
-
-      <label>Nom
-        <input name="nom" placeholder="Rakoto" />
-      </label>
-
-      <label>Prénom
-        <input name="prenom" placeholder="Jean" />
-      </label>
-
-      <label>Contact
-        <input name="contact" placeholder="034..." />
-      </label>
-
-      <label>Adresse
-        <input name="adresse" placeholder="Antananarivo" />
-      </label>
-
-      <label>Source
-        <input name="source" placeholder="Magasin" />
-      </label>
-
-      <label>Statut
-        <select name="statut">
-          <option>En attente</option>
-          <option>Validé</option>
-          <option>Annulé</option>
-        </select>
-      </label>
-
-      <label>Num carte
-        <input name="numCarte" />
-      </label>
-
-      <label>Num décodeur
-        <input name="numDecodeur" />
-      </label>
-
-      <label>Bouquet
-        <input name="bouquet" />
-      </label>
-
-      <label>Montant
-        <input name="montant" type="number" step="0.01" />
-      </label>
-
-      <label>Commission toi
-        <input name="commissionToi" type="number" step="0.01" value="0" />
-      </label>
-
-      <label>Commission source
-        <input name="commissionSource" type="number" step="0.01" value="0" />
-      </label>
-
-      <label>Commission tech
-        <input name="commissionTech" type="number" step="0.01" value="0" />
-      </label>
-
-      <label class="full">Commentaire
-        <textarea name="commentaire" placeholder="Notes..."></textarea>
-      </label>
-
-      <button class="full" type="submit">Enregistrer</button>
-    </form>
-
-    <div id="status" class="status">Prêt.</div>
-
-    <div class="list">
-      <h2>Opérations</h2>
-      <div id="ops"></div>
+  <div class="header">
+    <h1>📺 SOA MANAMPY SHOP - Accueil</h1>
+    <div class="nav-links">
+      <a href="index.html" class="nav-btn">🏠 Accueil</a>
+      <a href="abonnements.html" class="nav-btn">📝 Abonnements</a>
+      <a href="stock.html" class="nav-btn">📦 Stock</a>
+      <a href="saisie.html" class="nav-btn">✏️ Saisie</a>
+      <a href="liste.html" class="nav-btn">📋 Liste</a>
+      <a href="carte.html" class="nav-btn">🪪 Carte</a>
+      <a href="commissions.html" class="nav-btn">💰 Commissions</a>
+      <a href="déconnexion.html" class="btn-deconnexion">Déconnexion</a>
     </div>
   </div>
 
-  <script>
-    const form = document.getElementById('opForm');
-    const statusBox = document.getElementById('status');
-    const opsBox = document.getElementById('ops');
+  <div class="container">
+    <div class="card">
+      <h2>👋 SOA MANAMPY SHOP</h2>
+      <p>Sélectionne une option ci-dessous pour commencer</p>
 
-    function setStatus(msg) {
-      statusBox.textContent = msg;
-    }
+      <div class="menu-grid">
+        <a href="saisie.html" class="menu-item">
+          <span class="icon">✏️</span>
+          <span class="label">Saisie</span>
+        </a>
 
-    async function loadOps() {
-      const res = await fetch('/api/operations');
-      const json = await res.json();
-      const items = json.data || [];
-      if (!items.length) {
-        opsBox.innerHTML = '<p>Aucune opération.</p>';
-        return;
-      }
-      opsBox.innerHTML = items.map(op => `
-        <div class="op">
-          <strong>${op.type || ''}</strong> — ${op.nom || ''} ${op.prenom || ''}<br>
-          <small>${op.date || ''} ${op.heure || ''} | ${op.statut || ''}</small><br>
-          <small>${op.contact || ''} | ${op.adresse || ''}</small>
-        </div>
-      `).join('');
-    }
+        <a href="liste.html" class="menu-item">
+          <span class="icon">📋</span>
+          <span class="label">Voir Liste</span>
+        </a>
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      data.spOk = 0;
-      const res = await fetch('/api/operations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      const json = await res.json();
-      if (json.ok) {
-        setStatus('Enregistré avec succès.');
-        form.reset();
-        await loadOps();
-      } else {
-        setStatus('Erreur: ' + (json.error || 'inconnue'));
-      }
-    });
+        <a href="commissions.html" class="menu-item">
+          <span class="icon">💰</span>
+          <span class="label">Commissions</span>
+        </a>
 
-    loadOps().catch(() => setStatus('Impossible de charger les opérations.'));
-  </script>
+        <a href="stock.html" class="menu-item">
+          <span class="icon">📦</span>
+          <span class="label">Gérer Stock</span>
+        </a>
+
+        <a href="carte.html" class="menu-item">
+          <span class="icon">🪪</span>
+          <span class="label">Carte</span>
+        </a>
+
+        <a href="abonnements.html" class="menu-item">
+          <span class="icon">📝</span>
+          <span class="label">Abonnements</span>
+        </a>
+
+        <a href="loginina.html" class="menu-item">
+          <span class="icon">🔐</span>
+          <span class="label">Login</span>
+        </a>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
