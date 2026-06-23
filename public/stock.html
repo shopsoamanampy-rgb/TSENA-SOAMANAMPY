@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOA MANAMPY - STOCK</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 1em; }
+    body { background: #1a1a1a; color: #ffffff; padding: 10px; line-height: 1.4; }
+
+    header { text-align: center; margin-bottom: 12px; }
+    header h1 { color: #4fc3f7; text-transform: uppercase; font-size: 1.8em; font-weight: bold; letter-spacing: 1px; }
+    header p { color: #e0e0e0; }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav button {
+      padding: 10px 16px;
+      background: #2d2d2d;
+      color: #fff;
+      border: 1px solid #4fc3f7;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    nav button:hover { background: #4fc3f7; color: #000; }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section {
+      background: #2d2d2d;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .section h3 {
+      text-align: center;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      font-size: 1.1em;
+      color: #4fc3f7;
+      border-bottom: 2px solid #4fc3f7;
+      padding-bottom: 6px;
+    }
+
+    label {
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      font-size: 0.9em;
+      font-weight: bold;
+      color: #e0e0e0;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #666;
+      border-radius: 4px;
+      background: #111;
+      color: #ffffff;
+      font-size: 0.95em;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #4fc3f7;
+      outline: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .btn-primary, .btn-secondary, .btn-danger {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.95em;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    .btn-primary { background: #2e7d32; color: #fff; }
+    .btn-primary:hover { background: #388e3c; }
+
+    .btn-secondary { background: #1976d2; color: #fff; }
+    .btn-secondary:hover { background: #2196f3; }
+
+    .btn-danger { background: #c62828; color: #fff; }
+    .btn-danger:hover { background: #e53935; }
+
+    .stock-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stock-card {
+      background: #1a1a1a;
+      border: 1px solid #4fc3f7;
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stock-card h4 {
+      color: #4fc3f7;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 0.95em;
+    }
+
+    .stock-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #00e676;
+      margin: 8px 0;
+    }
+
+    .stock-alert {
+      color: #ffb74d;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .stock-alert.low {
+      color: #ff5252;
+    }
+
+    .totals-bar {
+      margin-top: 12px;
+      padding: 10px;
+      background: #111;
+      border-radius: 6px;
+      border: 2px solid #4fc3f7;
+    }
+
+    .totals-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .totals-item {
+      flex: 1 1 220px;
+      font-size: 1.05em;
+    }
+
+    .totals-item strong {
+      color: #ffffff;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .totals-item span {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #00e676;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1100px;
+      font-size: 0.92em;
+    }
+
+    th, td {
+      border: 1px solid #555;
+      padding: 8px 6px;
+      text-align: left;
+      color: #ffffff;
+    }
+
+    th {
+      background: #111;
+      text-transform: uppercase;
+      color: #4fc3f7;
+      font-weight: bold;
+    }
+
+    tbody tr:nth-child(even) { background: #242424; }
+    tbody tr:nth-child(odd) { background: #2d2d2d; }
+    tbody tr:hover { background: #383838; }
+
+    .badge-entree {
+      background: #2e7d32;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .badge-sortie {
+      background: #c62828;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .badge-achat {
+      background: #ffb300;
+      color: #000;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .badge-vente {
+      background: #29b6f6;
+      color: #000;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.8em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .btn-edit { background: #ff9800; }
+    .btn-delete { background: #c62828; }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .month-section {
+      margin-top: 14px;
+      padding: 12px;
+      background: #1a1a1a;
+      border: 1px solid #555;
+      border-radius: 8px;
+    }
+
+    .month-section h4 {
+      color: #4fc3f7;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .month-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .month-item {
+      padding: 8px 10px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .month-item strong {
+      color: #ffeb3b;
+    }
+
+    .warning-box {
+      margin-top: 10px;
+      padding: 10px;
+      background: #3e2723;
+      border-left: 4px solid #ff5252;
+      color: #ffccbc;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 1100px) {
+      .stock-cards { grid-template-columns: repeat(2, 1fr); }
+      .grid-3, .filter-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .grid, .grid-3, .filter-row { grid-template-columns: 1fr; }
+      .stock-cards { grid-template-columns: 1fr; }
+      nav button { flex: 1; min-width: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📦 SOA MANMPY AMPAMANTANANA ANDRONDRA - STOCK</h1>
+    <p>Gestion avancée du matériel</p>
+  </header>
+
+  <nav>
+    <button onclick="window.location.href='index.html'">🏠 Accueil</button>
+    <button onclick="window.location.href='liste.html'">📋 Liste</button>
+    <button onclick="window.location.href='stock.html'">📦 Stock</button>
+    <button onclick="window.location.href='commissions.html'">💰 Commissions</button>
+  </nav>
+
+  <div class="container">
+    <div class="section">
+      <h3>📥 / 📤 Mouvement de stock</h3>
+      <div class="grid">
+        <div>
+          <label>Type de matériel *</label>
+          <select id="typeMateriel">
+            <option value="carte">Carte</option>
+            <option value="decodeur">Décodeur</option>
+            <option value="parabole">Parabole</option>
+            <option value="kit">Kit antenne</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Action *</label>
+          <select id="actionStock">
+            <option value="entree">Réception / Entrée</option>
+            <option value="sortie">Sortie / Vente</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Quantité *</label>
+          <input type="number" id="quantiteStock" min="1" value="1">
+        </div>
+
+        <div>
+          <label>Date *</label>
+          <input type="date" id="dateStock">
+        </div>
+
+        <div>
+          <label>Fournisseur</label>
+          <input type="text" id="fournisseurStock" placeholder="Nom du fournisseur">
+        </div>
+
+        <div>
+          <label>Prix unitaire achat</label>
+          <input type="number" id="prixAchatStock" min="0" placeholder="0">
+        </div>
+
+        <div>
+          <label>Prix unitaire vente</label>
+          <input type="number" id="prixVenteStock" min="0" placeholder="0">
+        </div>
+
+        <div>
+          <label>Client / Référence vente</label>
+          <input type="text" id="clientStock" placeholder="Nom client si sortie">
+        </div>
+      </div>
+
+      <label>Remarques</label>
+      <textarea id="remarqueStock" rows="2" placeholder="Notes supplémentaires"></textarea>
+
+      <button type="button" class="btn-primary" id="btnEnregistrerStock">📦 Enregistrer mouvement</button>
+      <button type="button" class="btn-secondary" id="btnExporterStock">💾 Exporter stock JSON</button>
+      <button type="button" class="btn-danger" id="btnViderFiltres">🧹 Réinitialiser filtres</button>
+    </div>
+
+    <div class="section">
+      <h3>📊 Stock actuel</h3>
+      <div class="stock-cards">
+        <div class="stock-card">
+          <h4>Carte</h4>
+          <div class="stock-value" id="stockCarte">0</div>
+          <div class="stock-alert" id="alertCarte"></div>
+        </div>
+        <div class="stock-card">
+          <h4>Décodeur</h4>
+          <div class="stock-value" id="stockDecodeur">0</div>
+          <div class="stock-alert" id="alertDecodeur"></div>
+        </div>
+        <div class="stock-card">
+          <h4>Parabole</h4>
+          <div class="stock-value" id="stockParabole">0</div>
+          <div class="stock-alert" id="alertParabole"></div>
+        </div>
+        <div class="stock-card">
+          <h4>Kit antenne</h4>
+          <div class="stock-value" id="stockKit">0</div>
+          <div class="stock-alert" id="alertKit"></div>
+        </div>
+      </div>
+
+      <div class="warning-box" id="warningBox" style="display:none;"></div>
+
+      <div class="totals-bar">
+        <div class="totals-row">
+          <div class="totals-item">
+            <strong>Valeur stock achat</strong>
+            <span id="valeurAchat">0 Ariary</span>
+          </div>
+          <div class="totals-item">
+            <strong>Valeur stock vente</strong>
+            <span id="valeurVente">0 Ariary</span>
+          </div>
+          <div class="totals-item">
+            <strong>Marge potentielle</strong>
+            <span id="margePotentielle">0 Ariary</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🔎 Filtres / Recherche</h3>
+      <div class="filter-row">
+        <div>
+          <label>Type matériel</label>
+          <select id="filterType">
+            <option value="all">Tous</option>
+            <option value="carte">Carte</option>
+            <option value="decodeur">Décodeur</option>
+            <option value="parabole">Parabole</option>
+            <option value="kit">Kit antenne</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Action</label>
+          <select id="filterAction">
+            <option value="all">Toutes</option>
+            <option value="entree">Entrée</option>
+            <option value="sortie">Sortie</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Du</label>
+          <input type="date" id="filterDateDebut">
+        </div>
+
+        <div>
+          <label>Au</label>
+          <input type="date" id="filterDateFin">
+        </div>
+      </div>
+
+      <label>Recherche libre</label>
+      <input type="text" id="searchStock" placeholder="Recherche fournisseur, client, remarque, date...">
+    </div>
+
+    <div class="section">
+      <h3>📋 Historique stock</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Action</th>
+              <th>Qté</th>
+              <th>Stock après</th>
+              <th>Fournisseur</th>
+              <th>Client</th>
+              <th>Achat U.</th>
+              <th>Vente U.</th>
+              <th>Remarques</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="stockTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>📅 Statistiques mensuelles</h3>
+      <div id="monthStats" class="month-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_STOCK = "canalplus_stock";
+    let stockMovements = JSON.parse(localStorage.getItem(STORAGE_STOCK)) || [];
+    const seuils = {
+      carte: 5,
+      decodeur: 3,
+      parabole: 3,
+      kit: 2
+    };
+
+    document.getElementById("dateStock").value = new Date().toISOString().slice(0, 10);
+
+    function saveStock() {
+      localStorage.setItem(STORAGE_STOCK, JSON.stringify(stockMovements));
+    }
+
+    function normaliserType(type) {
+      return type || "carte";
+    }
+
+    function getStockData() {
+      const stock = { carte: 0, decodeur: 0, parabole: 0, kit: 0 };
+      stockMovements.forEach(m => {
+        const type = normaliserType(m.typeMateriel);
+        if (!stock[type]) stock[type] = 0;
+        if (m.action === "entree") stock[type] += Number(m.quantite) || 0;
+        if (m.action === "sortie") stock[type] -= Number(m.quantite) || 0;
+      });
+      return stock;
+    }
+
+    function getFilteredMovements() {
+      const type = document.getElementById("filterType").value;
+      const action = document.getElementById("filterAction").value;
+      const dateDebut = document.getElementById("filterDateDebut").value;
+      const dateFin = document.getElementById("filterDateFin").value;
+      const q = document.getElementById("searchStock").value.toLowerCase().trim();
+
+      return stockMovements.filter(m => {
+        const matchType = type === "all" || m.typeMateriel === type;
+        const matchAction = action === "all" || m.action === action;
+        const matchDebut = !dateDebut || (m.dateStock >= dateDebut);
+        const matchFin = !dateFin || (m.dateStock <= dateFin);
+        const text = [
+          m.typeMateriel,
+          m.action,
+          m.dateStock,
+          m.fournisseur,
+          m.client,
+          m.remarque
+        ].join(" ").toLowerCase();
+
+        const matchSearch = !q || text.includes(q);
+        return matchType && matchAction && matchDebut && matchFin && matchSearch;
+      }).sort((a, b) => b.id - a.id);
+    }
+
+    function getBadgeType(type) {
+      if (type === "entree") return "badge-entree";
+      return "badge-sortie";
+    }
+
+    function formatType(type) {
+      const map = {
+        carte: "Carte",
+        decodeur: "Décodeur",
+        parabole: "Parabole",
+        kit: "Kit antenne"
+      };
+      return map[type] || type;
+    }
+
+    function renderStock() {
+      const stock = getStockData();
+      document.getElementById("stockCarte").textContent = stock.carte || 0;
+      document.getElementById("stockDecodeur").textContent = stock.decodeur || 0;
+      document.getElementById("stockParabole").textContent = stock.parabole || 0;
+      document.getElementById("stockKit").textContent = stock.kit || 0;
+
+      Object.keys(seuils).forEach(type => {
+        const value = stock[type] || 0;
+        const alertId = "alert" + type.charAt(0).toUpperCase() + type.slice(1);
+        const el = document.getElementById(alertId);
+        if (value <= seuils[type]) {
+          el.textContent = `Stock bas : ${value} restant(s)`;
+          el.className = "stock-alert low";
+        } else {
+          el.textContent = "Stock OK";
+          el.className = "stock-alert";
+        }
+      });
+
+      let warnings = [];
+      if ((stock.carte || 0) <= seuils.carte) warnings.push("Carte");
+      if ((stock.decodeur || 0) <= seuils.decodeur) warnings.push("Décodeur");
+      if ((stock.parabole || 0) <= seuils.parabole) warnings.push("Parabole");
+      if ((stock.kit || 0) <= seuils.kit) warnings.push("Kit antenne");
+
+      const warningBox = document.getElementById("warningBox");
+      if (warnings.length) {
+        warningBox.style.display = "block";
+        warningBox.textContent = "Attention stock bas pour : " + warnings.join(", ") + ".";
+      } else {
+        warningBox.style.display = "none";
+      }
+
+      let valeurAchat = 0;
+      let valeurVente = 0;
+      stockMovements.forEach(m => {
+        const q = Number(m.quantite) || 0;
+        const pa = Number(m.prixAchat) || 0;
+        const pv = Number(m.prixVente) || 0;
+        if (m.action === "entree") valeurAchat += q * pa;
+        if (m.action === "sortie") valeurVente += q * pv;
+      });
+
+      document.getElementById("valeurAchat").textContent = valeurAchat.toLocaleString("fr-FR") + " Ariary";
+      document.getElementById("valeurVente").textContent = valeurVente.toLocaleString("fr-FR") + " Ariary";
+      document.getElementById("margePotentielle").textContent = (valeurVente - valeurAchat).toLocaleString("fr-FR") + " Ariary";
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("stockTable");
+      const list = getFilteredMovements();
+      const stockTemps = { carte: 0, decodeur: 0, parabole: 0, kit: 0 };
+      tbody.innerHTML = "";
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:20px; color:#bdbdbd;">Aucun mouvement trouvé</td></tr>`;
+        return;
+      }
+
+      const reverse = [...stockMovements].sort((a,b) => a.id - b.id);
+      const cumulAfter = {};
+      reverse.forEach(m => {
+        const type = normaliserType(m.typeMateriel);
+        if (m.action === "entree") stockTemps[type] += Number(m.quantite) || 0;
+        if (m.action === "sortie") stockTemps[type] -= Number(m.quantite) || 0;
+        cumulAfter[m.id] = stockTemps[type];
+      });
+
+      list.forEach(m => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${m.dateStock || ""}</td>
+          <td><strong>${formatType(m.typeMateriel)}</strong></td>
+          <td><span class="${getBadgeType(m.action)}">${m.action === "entree" ? "Entrée" : "Sortie"}</span></td>
+          <td>${m.quantite || 0}</td>
+          <td><strong>${cumulAfter[m.id] !== undefined ? cumulAfter[m.id] : ""}</strong></td>
+          <td>${m.fournisseur || ""}</td>
+          <td>${m.client || ""}</td>
+          <td>${(Number(m.prixAchat) || 0).toLocaleString("fr-FR")} Ar</td>
+          <td>${(Number(m.prixVente) || 0).toLocaleString("fr-FR")} Ar</td>
+          <td>${m.remarque || ""}</td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn-action btn-edit" data-id="${m.id}">Modifier</button>
+              <button class="btn-action btn-delete" data-id="${m.id}">Supprimer</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderStatsMensuelles() {
+      const container = document.getElementById("monthStats");
+      const stats = {};
+
+      stockMovements.forEach(m => {
+        const month = (m.dateStock || "").slice(0, 7);
+        if (!month) return;
+        if (!stats[month]) stats[month] = { entree: 0, sortie: 0, achat: 0, vente: 0 };
+        const q = Number(m.quantite) || 0;
+        if (m.action === "entree") {
+          stats[month].entree += q;
+          stats[month].achat += q * (Number(m.prixAchat) || 0);
+        } else {
+          stats[month].sortie += q;
+          stats[month].vente += q * (Number(m.prixVente) || 0);
+        }
+      });
+
+      const keys = Object.keys(stats).sort().reverse();
+      if (!keys.length) {
+        container.innerHTML = "<div>Aucune statistique disponible.</div>";
+        return;
+      }
+
+      container.innerHTML = "";
+      keys.forEach(k => {
+        const s = stats[k];
+        const item = document.createElement("div");
+        item.className = "month-item";
+        item.innerHTML = `
+          <span><strong>${k}</strong> : +${s.entree} / -${s.sortie}</span>
+          <span>Achat: ${s.achat.toLocaleString("fr-FR")} Ar | Vente: ${s.vente.toLocaleString("fr-FR")} Ar</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function refreshAll() {
+      renderStock();
+      renderTable();
+      renderStatsMensuelles();
+    }
+
+    document.getElementById("btnEnregistrerStock").addEventListener("click", function() {
+      const typeMateriel = document.getElementById("typeMateriel").value;
+      const action = document.getElementById("actionStock").value;
+      const quantite = parseInt(document.getElementById("quantiteStock").value, 10) || 0;
+      const dateStock = document.getElementById("dateStock").value;
+      const fournisseur = document.getElementById("fournisseurStock").value.trim();
+      const prixAchat = parseFloat(document.getElementById("prixAchatStock").value) || 0;
+      const prixVente = parseFloat(document.getElementById("prixVenteStock").value) || 0;
+      const client = document.getElementById("clientStock").value.trim();
+      const remarque = document.getElementById("remarqueStock").value.trim();
+
+      if (!dateStock || quantite <= 0) {
+        alert("Veuillez remplir la date et la quantité.");
+        return;
+      }
+
+      if (action === "sortie" && !client) {
+        if (!confirm("Aucun client indiqué. Continuer quand même ?")) return;
+      }
+
+      stockMovements.unshift({
+        id: Date.now(),
+        typeMateriel,
+        action,
+        quantite,
+        dateStock,
+        fournisseur,
+        prixAchat,
+        prixVente,
+        client,
+        remarque
+      });
+
+      saveStock();
+      refreshAll();
+      alert("Mouvement stock enregistré avec succès !");
+    });
+
+    document.getElementById("btnExporterStock").addEventListener("click", function() {
+      if (stockMovements.length === 0) {
+        alert("Aucune donnée à exporter.");
+        return;
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stockMovements, null, 2));
+      const a = document.createElement("a");
+      a.href = dataStr;
+      a.download = `stock_nomena_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    });
+
+    document.getElementById("btnViderFiltres").addEventListener("click", function() {
+      document.getElementById("filterType").value = "all";
+      document.getElementById("filterAction").value = "all";
+      document.getElementById("filterDateDebut").value = "";
+      document.getElementById("filterDateFin").value = "";
+      document.getElementById("searchStock").value = "";
+      renderTable();
+    });
+
+    ["filterType", "filterAction", "filterDateDebut", "filterDateFin", "searchStock"].forEach(id => {
+      document.getElementById(id).addEventListener("input", renderTable);
+      document.getElementById(id).addEventListener("change", renderTable);
+    });
+
+    document.getElementById("stockTable").addEventListener("click", function(e) {
+      if (e.target.classList.contains("btn-delete")) {
+        const id = parseInt(e.target.dataset.id);
+        if (confirm("Supprimer définitivement ce mouvement ?")) {
+          stockMovements = stockMovements.filter(m => m.id !== id);
+          saveStock();
+          refreshAll();
+        }
+      }
+
+      if (e.target.classList.contains("btn-edit")) {
+        const id = parseInt(e.target.dataset.id);
+        const m = stockMovements.find(x => x.id === id);
+        if (!m) return;
+
+        document.getElementById("typeMateriel").value = m.typeMateriel || "carte";
+        document.getElementById("actionStock").value = m.action || "entree";
+        document.getElementById("quantiteStock").value = m.quantite || 1;
+        document.getElementById("dateStock").value = m.dateStock || "";
+        document.getElementById("fournisseurStock").value = m.fournisseur || "";
+        document.getElementById("prixAchatStock").value = m.prixAchat || "";
+        document.getElementById("prixVenteStock").value = m.prixVente || "";
+        document.getElementById("clientStock").value = m.client || "";
+        document.getElementById("remarqueStock").value = m.remarque || "";
+
+        stockMovements = stockMovements.filter(x => x.id !== id);
+        saveStock();
+        refreshAll();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      refreshAll();
+    });
+  </script>
+</body>
+</html>
