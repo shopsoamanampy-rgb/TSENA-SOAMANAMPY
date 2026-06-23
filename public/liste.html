@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Liste des opérations</title>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#eef2f7;color:#e9eef5}
+.container{max-width:100%;margin:0 auto;padding:8px;color:#dfe7f2}
+.topbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-bottom:8px}
+h1{margin:0;font-size:20px;color:#eaf1fb}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+button,.file-label,.link-btn{border:none;padding:5px 8px;border-radius:5px;cursor:pointer;font-weight:600;background:#2f6fed;color:#fff;font-size:11px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button:hover,.file-label:hover,.link-btn:hover{opacity:.92}
+.file-label input{display:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin-bottom:8px}
+.card{background:#16202d;border-radius:6px;padding:8px;box-shadow:0 2px 6px rgba(0,0,0,.12);color:#eef4fb}
+.card .label{color:#b8c4d4;font-size:10px;margin-bottom:2px}
+.card .value{font-size:16px;font-weight:700;color:#fff}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+select,input{padding:5px 6px;border:1px solid #415063;border-radius:5px;min-width:110px;background:#1a2431;color:#eef4fb;font-size:11px}
+.table-wrap{background:#141c26;border-radius:6px;overflow:auto;box-shadow:0 2px 6px rgba(0,0,0,.12);max-width:100%}
+table{width:100%;border-collapse:collapse;color:#e9eef5;min-width:auto}
+th,td{padding:4px 3px;border-bottom:1px solid #243042;text-align:left;vertical-align:middle;font-size:10px;white-space:nowrap}
+th{background:#1b2532;position:sticky;top:0;z-index:1;color:#f2f6fb;font-weight:700;font-size:10px}
+tr{cursor:pointer}
+tr:hover{background:#1e2a3a}
+.tag{display:inline-block;padding:1px 4px;border-radius:999px;font-size:9px;font-weight:700;color:#fff}
+.vente{background:#198754}
+.reabo{background:#f59e0b}
+.empty{padding:20px;text-align:center;color:#c7d3e0}
+.hidden{display:none}
+#pdfArea{position:absolute;left:-10000px;top:0;width:800px;background:#fff;color:#000;padding:20px}
+.pdf-title{text-align:center;margin:0 0 10px;font-size:18px}
+.pdf-subtitle{text-align:center;margin:0 0 12px;font-size:11px}
+.pdf-table{width:100%;border-collapse:collapse}
+.pdf-table td,.pdf-table th{border:1px solid #ddd;padding:6px;color:#000;background:#fff;font-size:9px}
+.edit-box{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999;overflow:auto}
+.edit-card{width:100%;max-width:480px;background:#16202d;color:#eef4fb;border-radius:10px;padding:12px;box-shadow:0 8px 25px rgba(0,0,0,.35);max-height:90vh;overflow-y:auto}
+.edit-card h2{margin-top:0;font-size:16px}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.edit-grid input,.edit-grid select{width:100%;min-width:0;box-sizing:border-box;font-size:12px;padding:6px 8px}
+.edit-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:10px}
+.commission-toi{color:#22c55e;font-weight:700}
+.commission-source{color:#38bdf8;font-weight:600}
+.commission-tech{color:#f59e0b;font-weight:600}
+.money{font-weight:600}
+.context-menu{position:absolute;background:#1a2431;border:1px solid #415063;border-radius:6px;padding:4px 0;min-width:130px;box-shadow:0 3px 10px rgba(0,0,0,.3);z-index:10000;display:none}
+.context-menu.show{display:block}
+.context-menu-item{padding:6px 12px;cursor:pointer;font-size:12px;color:#eef4fb}
+.context-menu-item:hover{background:#2f6fed}
+.context-menu-item.danger:hover{background:#dc3545}
+.photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.photo-item{background:#1a2431;border:1px solid #415063;border-radius:6px;padding:6px}
+.photo-item img{width:100%;height:90px;object-fit:cover;border-radius:4px;display:block}
+.photo-item .cap{font-size:9px;color:#b8c4d4;margin-top:4px}
+.sp-ok{font-weight:700;color:#22c55e}
+.sp-no{font-weight:700;color:#f87171}
+.btn-secondary{background:#415063;color:#eef4fb}
+.notif-badge{background:#f59e0b;color:#111827}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="topbar">
+<h1>📋 Opérations</h1>
+<div class="actions">
+<button onclick="exportJSON()">💾 JSON</button>
+<label class="file-label">📂 Import<input type="file" accept=".json" onchange="importJSON(event)"></label>
+<button class="btn-secondary" onclick="resetFilters()">🔄 Filtres</button>
+<a class="link-btn" href="abonnements.html">🔔 Abonnements</a>
+<button class="notif-badge" onclick="openReminders()">⚠️ J-3 (<span id="reminderCountTop">0</span>)</button>
+</div>
+</div>
+
+<div class="cards">
+<div class="card"><div class="label">Total</div><div class="value" id="totalOps">0</div></div>
+<div class="card"><div class="label">Ventes</div><div class="value" id="totalVentes">0</div></div>
+<div class="card"><div class="label">Réabos</div><div class="value" id="totalReabos">0</div></div>
+<div class="card"><div class="label">Chiffre</div><div class="value" id="totalMontant">0 Ar</div></div>
+<div class="card"><div class="label">Ta comm.</div><div class="value" id="totalCommissionToi">0 Ar</div></div>
+<div class="card notif-badge" id="reminderCard" style="display:none"><div class="label">À rappeler</div><div class="value" id="reminderCount">0</div></div>
+</div>
+
+<div class="filters">
+<input type="text" id="searchInput" placeholder="🔍 Rechercher..." oninput="renderTable()">
+<select id="typeFilter" onchange="renderTable()">
+<option value="">Tous types</option>
+<option value="vente">Vente</option>
+<option value="reabo">Réabo</option>
+</select>
+<select id="sourceFilter" onchange="renderTable()"><option value="">Toutes sources</option></select>
+<select id="techFilter" onchange="renderTable()"><option value="">Tous techs</option></select>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th style="width:55px">Date</th>
+<th style="width:45px">Heure</th>
+<th style="width:55px">Type</th>
+<th style="width:75px">Nom</th>
+<th style="width:70px">Prénom</th>
+<th style="width:70px">Contact</th>
+<th style="width:90px">Adresse</th>
+<th style="width:45px">SP</th>
+<th style="width:65px">Source</th>
+<th style="width:65px">Tech</th>
+<th style="width:55px">Carte</th>
+<th style="width:60px">Décodeur</th>
+<th style="width:60px">Bouquet</th>
+<th style="width:60px">Montant</th>
+<th style="width:55px">Toi</th>
+<th style="width:55px">Sour.</th>
+<th style="width:55px">Tech</th>
+<th style="width:50px">Statut</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+<div class="empty hidden" id="emptyState">Aucune opération.</div>
+</div>
+</div>
+
+<div id="contextMenu" class="context-menu">
+<div class="context-menu-item" onclick="editFromContext()">✏️ Modifier</div>
+<div class="context-menu-item" onclick="printFromContext()">📑 PDF</div>
+<div class="context-menu-item" onclick="historyFromContext()">📄 Historique</div>
+<div class="context-menu-item danger" onclick="deleteFromContext()">🗑️ Supprimer</div>
+</div>
+
+<div id="pdfArea"></div>
+
+<div class="edit-box" id="editBox">
+<div class="edit-card">
+<h2>✏️ Modifier</h2>
+<div class="edit-grid">
+<input type="text" id="editNom" placeholder="Nom">
+<input type="text" id="editPrenom" placeholder="Prénom">
+<input type="text" id="editContact" placeholder="Contact">
+<input type="text" id="editAdresse" placeholder="Adresse">
+<input type="text" id="editSource" placeholder="Source">
+<input type="text" id="editTechnicien" placeholder="Technicien">
+<input type="text" id="editNumCarte" placeholder="Carte">
+<input type="text" id="editNumDecodeur" placeholder="Décodeur">
+<input type="text" id="editBouquet" placeholder="Bouquet">
+<input type="number" id="editMontant" placeholder="Montant">
+<select id="editType"><option value="vente">Vente</option><option value="reabo">Réabo</option></select>
+<input type="date" id="editDate">
+<input type="time" id="editHeure">
+<select id="editStatut"><option value="OK">OK</option><option value="En attente">En attente</option><option value="Annulé">Annulé</option></select>
+<label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#eef4fb;grid-column:1/-1">
+<input type="checkbox" id="editSpOk" style="min-width:auto;width:auto">
+<span>SP ok</span>
+</label>
+</div>
+
+<div style="margin-top:10px;padding:10px;background:#1a2431;border-radius:6px">
+<div style="font-size:11px;color:#b8c4d4;margin-bottom:6px">Photos vente</div>
+<div class="photo-grid">
+<div class="photo-item"><img id="previewPhotoDecodeur" src="" alt=""><div class="cap">Décodeur</div></div>
+<div class="photo-item"><img id="previewPhotoCarte" src="" alt=""><div class="cap">Carte</div></div>
+<div class="photo-item"><img id="previewPhotoSignal" src="" alt=""><div class="cap">Signal</div></div>
+<div class="photo-item"><img id="previewPhotoParabole" src="" alt=""><div class="cap">Parabole</div></div>
+</div>
+<div class="edit-grid" style="margin-top:8px">
+<input type="file" id="editPhotoDecodeur" accept="image/*">
+<input type="file" id="editPhotoCarte" accept="image/*">
+<input type="file" id="editPhotoSignal" accept="image/*">
+<input type="file" id="editPhotoParabole" accept="image/*">
+</div>
+</div>
+
+<div class="edit-actions">
+<button class="btn-secondary" onclick="closeEdit()">Annuler</button>
+<button onclick="saveEdit()">💾 Enregistrer</button>
+</div>
+<div style="margin-top:8px;padding:8px;background:#1a2431;border-radius:5px;font-size:10px;color:#94a3b8">
+<strong>ℹ️ Commissions:</strong> Vente: 25k (S:5k,T:10k,Toi:10k) | Réabo: 6% (sans source) ou 3%+3% (avec)
+</div>
+</div>
+</div>
+
+<script>
+let editIndex=-1;
+let contextMenuItemIndex=-1;
+let cloudDataCache=[];
+const dateColors={};
+const palette=['#1d4ed8','#0f766e','#7c2d12','#6d28d9','#b91c1c','#0369a1','#166534','#a16207'];
+
+function getColorForDate(dateValue){const key=String(dateValue||'').slice(0,10);if(!key)return'';if(!dateColors[key])dateColors[key]=palette[Object.keys(dateColors).length%palette.length];return dateColors[key]}
+function escapeHtml(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function pad2(n){return String(n).padStart(2,'0')}
+function toDateOnly(v){if(!v)return'';if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return v;const d=new Date(v);if(isNaN(d.getTime()))return String(v).slice(0,10);return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
+function addDays(dateStr,days){const d=new Date(dateStr+'T00:00:00');if(isNaN(d.getTime()))return'';d.setDate(d.getDate()+Number(days||0));return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
+function diffDays(a,b){const da=new Date(a+'T00:00:00');const db=new Date(b+'T00:00:00');if(isNaN(da.getTime())||isNaN(db.getTime()))return null;return Math.round((db-da)/(1000*60*60*24))}
+function formatDate(v){if(!v)return'';const s=String(v).trim();const d=/^\d{4}-\d{2}-\d{2}$/.test(s)?new Date(s+'T00:00:00'):new Date(s);if(isNaN(d.getTime()))return s;return d.toLocaleDateString('fr-FR')}
+function formatMoney(v){const n=Number(v||0);return n.toLocaleString('fr-FR')+' Ar'}
+function normalizeTime(v){const s=String(v||'').trim();if(!s)return'';if(/^\d{4}$/.test(s))return s.slice(0,2)+':'+s.slice(2);if(/^\d{2}:\d{2}$/.test(s))return s;return s}
+function sanitizeFile(name){return String(name).replace(/[^a-z0-9-_]+/gi,'_').slice(0,60)}
+
+async function fetchOps(){
+  const res=await fetch('/api/operations');
+  if(!res.ok) throw new Error('Erreur chargement');
+  const json=await res.json();
+  const arr=json.results||json.data||json.operations||[];
+  cloudDataCache=Array.isArray(arr)?arr.map(normalizeItem):[];
+  renderTable();
+}
+
+function normalizeItem(item){
+  const o={...item};
+  if(o.technicien===undefined && o.technician!==undefined) o.technicien=o.technician;
+  if(o.date===undefined && o.createdAt!==undefined) o.date=o.createdAt;
+  if(o.heure===undefined && o.time!==undefined) o.heure=o.time;
+  return o;
+}
+
+function getLoadData(){return cloudDataCache}
+
+function getFilteredData(){
+const data=getLoadData();
+const q=document.getElementById('searchInput').value.toLowerCase().trim();
+const type=document.getElementById('typeFilter').value;
+const source=document.getElementById('sourceFilter').value;
+const tech=document.getElementById('techFilter').value;
+return data.filter(item=>{
+const matchName=!q||String(item.nom||'').toLowerCase().includes(q)||String(item.prenom||'').toLowerCase().includes(q)||String(item.contact||'').toLowerCase().includes(q)||String(item.adresse||'').toLowerCase().includes(q);
+const matchType=!type||item.type===type;
+const matchSource=!source||item.source===source;
+const matchTech=!tech||item.technicien===tech;
+return matchName&&matchType&&matchSource&&matchTech;
+});
+}
+
+function renderSelectOptions(){
+const data=getLoadData();
+const sources=[...new Set(data.map(x=>x.source).filter(Boolean))];
+const techs=[...new Set(data.map(x=>x.technicien).filter(Boolean))];
+document.getElementById('sourceFilter').innerHTML='<option value="">Toutes sources</option>'+sources.map(s=>`<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+document.getElementById('techFilter').innerHTML='<option value="">Tous techs</option>'+techs.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+}
+
+function renderSummary(){
+const allData=getLoadData();
+document.getElementById('totalOps').textContent=allData.length;
+document.getElementById('totalVentes').textContent=allData.filter(x=>x.type==='vente').length;
+document.getElementById('totalReabos').textContent=allData.filter(x=>x.type==='reabo').length;
+document.getElementById('totalMontant').textContent=formatMoney(allData.reduce((sum,x)=>sum+Number(x.montant||0),0));
+document.getElementById('totalCommissionToi').textContent=formatMoney(allData.reduce((sum,x)=>sum+Number(x.commissionToi||0),0));
+}
+
+function getReminders(daysBefore=3){
+const today=toDateOnly(new Date().toISOString());
+return getLoadData().map(item=>{
+const start=toDateOnly(item.dateAbonnement||item.date||'');
+const end=item.dateFin||(start?addDays(start,30):'');
+const daysLeft=end?diffDays(today,end):null;
+return {...item,__start:start,__end:end,__daysLeft:daysLeft};
+}).filter(item=>String(item.type||'').toLowerCase()==='reabo'&&item.__end&&item.__daysLeft===daysBefore).sort((a,b)=>String(a.__end).localeCompare(String(b.__end)));
+}
+
+function updateReminderBadge(){
+const reminders=getReminders(3);
+document.getElementById('reminderCount').textContent=reminders.length;
+document.getElementById('reminderCountTop').textContent=reminders.length;
+document.getElementById('reminderCard').style.display=reminders.length?'block':'none';
+}
+
+function openReminders(){window.location.href='abonnements.html'}
+
+function maybeNotify(){
+const reminders=getReminders(3);
+updateReminderBadge();
+if(!reminders.length)return;
+if(!('Notification' in window))return;
+if(Notification.permission==='granted'){new Notification('Abonnements à rappeler',{body:`${reminders.length} abonnement(s) finissent dans 3 jours.`})}
+else if(Notification.permission!=='denied'){Notification.requestPermission().then(permission=>{if(permission==='granted'){new Notification('Abonnements à rappeler',{body:`${reminders.length} abonnement(s) finissent dans 3 jours.`})}})}
+}
+
+function renderTable(){
+renderSelectOptions();
+const data=getFilteredData();
+renderSummary();
+updateReminderBadge();
+const tbody=document.getElementById('tableBody');
+const empty=document.getElementById('emptyState');
+tbody.innerHTML='';
+if(!data.length){empty.classList.remove('hidden');return}
+empty.classList.add('hidden');
+data.forEach(item=>{
+const realIndex=getLoadData().findIndex(x=>x.id===item.id);
+const tr=document.createElement('tr');
+const typeLabel=item.type==='reabo'?'Réabo':'Vente';
+const typeClass=item.type==='reabo'?'reabo':'vente';
+const rowColor=getColorForDate(item.date);
+tr.innerHTML=`
+<td style="color:${rowColor||'#eef4fb'};font-weight:700">${escapeHtml(formatDate(item.date||''))}</td>
+<td>${escapeHtml(normalizeTime(item.heure||''))}</td>
+<td><span class="tag ${typeClass}">${escapeHtml(typeLabel)}</span></td>
+<td>${escapeHtml(item.nom||'')}</td>
+<td>${escapeHtml(item.prenom||'')}</td>
+<td>${escapeHtml(item.contact||'')}</td>
+<td>${escapeHtml(item.adresse||'')}</td>
+<td>${item.spOk?'<span class="sp-ok">✓</span>':'<span class="sp-no">✗</span>'}</td>
+<td>${escapeHtml(item.source||'')}</td>
+<td>${escapeHtml(item.technicien||'')}</td>
+<td>${escapeHtml(item.numCarte||'')}</td>
+<td>${escapeHtml(item.numDecodeur||'')}</td>
+<td>${escapeHtml(item.bouquet||'')}</td>
+<td class="money">${escapeHtml(formatMoney(item.montant||0))}</td>
+<td class="commission-toi">${escapeHtml(formatMoney(item.commissionToi||0))}</td>
+<td class="commission-source">${escapeHtml(formatMoney(item.commissionSource||0))}</td>
+<td class="commission-tech">${escapeHtml(formatMoney(item.commissionTech||0))}</td>
+<td><span class="tag" style="background:${item.statut==='OK'?'#198754':item.statut==='Annulé'?'#dc3545':'#6c757d'}">${escapeHtml(item.statut||'OK')}</span></td>
+`;
+tr.onclick=()=>openEdit(realIndex);
+tbody.appendChild(tr);
+});
+}
+
+function buildPdfContent(title,rowsHtml){
+return `<div><h2 class="pdf-title">${escapeHtml(title)}</h2><p class="pdf-subtitle">Généré le ${new Date().toLocaleDateString('fr-FR')} ${new Date().toLocaleTimeString('fr-FR')}</p><table class="pdf-table"><thead><tr><th>Date</th><th>Type</th><th>Nom</th><th>Source</th><th>Tech</th><th>Montant</th><th>Toi</th><th>Source</th><th>Tech</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+}
+
+function openHistory(name){
+const data=getLoadData().filter(x=>String(x.nom||'')===name);
+const rows=data.map(x=>`<tr><td>${escapeHtml(formatDate(x.date||''))}</td><td>${escapeHtml(x.type==='reabo'?'Réabo':'Vente')}</td><td>${escapeHtml(x.nom||'')}</td><td>${escapeHtml(x.source||'')}</td><td>${escapeHtml(x.technicien||'')}</td><td>${escapeHtml(formatMoney(x.montant||0))}</td><td>${escapeHtml(formatMoney(x.commissionToi||0))}</td><td>${escapeHtml(formatMoney(x.commissionSource||0))}</td><td>${escapeHtml(formatMoney(x.commissionTech||0))}</td></tr>`).join('')||'<tr><td colspan="9">Aucune donnée</td></tr>';
+const el=document.getElementById('pdfArea');
+el.innerHTML=buildPdfContent('Historique: '+name,rows);
+html2pdf().set({margin:10,filename:'historique_'+sanitizeFile(name)+'.pdf',html2canvas:{scale:2,useCORS:true,scrollY:0},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}}).from(el).save();
+}
+
+function printReceipt(index){
+const data=getLoadData();
+const item=data[index];
+if(!item)return;
+const rows=`<tr><td>${escapeHtml(formatDate(item.date||''))}</td><td>${escapeHtml(item.type==='reabo'?'Réabo':'Vente')}</td><td>${escapeHtml(item.nom||'')}</td><td>${escapeHtml(item.source||'')}</td><td>${escapeHtml(item.technicien||'')}</td><td>${escapeHtml(formatMoney(item.montant||0))}</td><td>${escapeHtml(formatMoney(item.commissionToi||0))}</td><td>${escapeHtml(formatMoney(item.commissionSource||0))}</td><td>${escapeHtml(formatMoney(item.commissionTech||0))}</td></tr>`;
+const el=document.getElementById('pdfArea');
+el.innerHTML=buildPdfContent('Reçu: '+(item.nom||''),rows);
+html2pdf().set({margin:10,filename:'recu_'+sanitizeFile(item.nom||'op')+'.pdf',html2canvas:{scale:2,useCORS:true,scrollY:0},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(el).save();
+}
+
+function openEdit(index){
+const data=getLoadData();
+const item=data[index];
+if(!item)return;
+editIndex=index;
+document.getElementById('editNom').value=item.nom||'';
+document.getElementById('editPrenom').value=item.prenom||'';
+document.getElementById('editContact').value=item.contact||'';
+document.getElementById('editAdresse').value=item.adresse||'';
+document.getElementById('editSource').value=item.source||'';
+document.getElementById('editTechnicien').value=item.technicien||'';
+document.getElementById('editNumCarte').value=item.numCarte||'';
+document.getElementById('editNumDecodeur').value=item.numDecodeur||'';
+document.getElementById('editBouquet').value=item.bouquet||'';
+document.getElementById('editMontant').value=item.montant||'';
+document.getElementById('editType').value=item.type||'vente';
+document.getElementById('editDate').value=item.date?String(item.date).slice(0,10):'';
+document.getElementById('editHeure').value=normalizeTime(item.heure||'');
+document.getElementById('editStatut').value=item.statut||'OK';
+document.getElementById('editSpOk').checked=!!item.spOk;
+document.getElementById('previewPhotoDecodeur').src=item.photoDecodeur||'';
+document.getElementById('previewPhotoCarte').src=item.photoCarte||'';
+document.getElementById('previewPhotoSignal').src=item.photoSignal||'';
+document.getElementById('previewPhotoParabole').src=item.photoParabole||'';
+document.getElementById('editBox').style.display='flex';
+}
+
+function closeEdit(){document.getElementById('editBox').style.display='none';editIndex=-1}
+
+function readFileAsDataURL(file){
+return new Promise((resolve,reject)=>{
+if(!file)return resolve('');
+const reader=new FileReader();
+reader.onload=()=>resolve(reader.result||'');
+reader.onerror=()=>reject(new Error('Erreur lecture fichier'));
+reader.readAsDataURL(file);
+});
+}
+
+async function saveEdit(){
+const data=getLoadData();
+if(editIndex<0||!data[editIndex])return;
+const type=document.getElementById('editType').value;
+const source=document.getElementById('editSource').value.trim();
+const technicien=document.getElementById('editTechnicien').value.trim();
+const montantSaisi=Number(document.getElementById('editMontant').value)||0;
+let montant,commissionToi,commissionSource,commissionTech;
+if(type==='vente'){
+const base=25000;
+commissionSource=source?5000:0;
+commissionTech=technicien?10000:0;
+commissionToi=base-commissionSource-commissionTech;
+montant=base;
+}else{
+const base=montantSaisi||0;
+commissionSource=source?base*0.03:0;
+commissionToi=source?base*0.03:base*0.06;
+commissionTech=0;
+montant=base;
+}
+const old=data[editIndex];
+const p1=document.getElementById('editPhotoDecodeur').files[0];
+const p2=document.getElementById('editPhotoCarte').files[0];
+const p3=document.getElementById('editPhotoSignal').files[0];
+const p4=document.getElementById('editPhotoParabole').files[0];
+const photoDecodeur=type==='vente'&&p1?await readFileAsDataURL(p1):(old.photoDecodeur||'');
+const photoCarte=type==='vente'&&p2?await readFileAsDataURL(p2):(old.photoCarte||'');
+const photoSignal=type==='vente'&&p3?await readFileAsDataURL(p3):(old.photoSignal||'');
+const photoParabole=type==='vente'&&p4?await readFileAsDataURL(p4):(old.photoParabole||'');
+const updated={...data[editIndex],nom:document.getElementById('editNom').value.trim(),prenom:document.getElementById('editPrenom').value.trim(),contact:document.getElementById('editContact').value.trim(),adresse:document.getElementById('editAdresse').value.trim(),spOk:document.getElementById('editSpOk').checked,source,technicien:type==='vente'?technicien:'',numCarte:document.getElementById('editNumCarte').value.trim(),numDecodeur:document.getElementById('editNumDecodeur').value.trim(),bouquet:document.getElementById('editBouquet').value.trim(),montant,commissionToi,commissionSource,commissionTech,type,date:document.getElementById('editDate').value||data[editIndex].date,heure:document.getElementById('editHeure').value||data[editIndex].heure,statut:document.getElementById('editStatut').value,photoDecodeur,photoCarte,photoSignal,photoParabole};
+await fetch('/api/operations/'+encodeURIComponent(updated.id),{
+method:'PUT',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(updated)
+});
+closeEdit();
+await fetchOps();
+maybeNotify();
+}
+
+async function deleteItem(index){
+const data=getLoadData();
+if(index<0||index>=data.length)return;
+if(!confirm('Supprimer?'))return;
+const item=data[index];
+await fetch('/api/operations/'+encodeURIComponent(item.id),{method:'DELETE'});
+await fetchOps();
+updateReminderBadge();
+}
+
+function exportJSON(){
+const data=getLoadData();
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');
+a.href=url;
+a.download='soamanampycanalplus_operations.json';
+a.click();
+URL.revokeObjectURL(url);
+}
+
+function importJSON(event){
+const file=event.target.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=e=>{try{const parsed=JSON.parse(e.target.result);if(!Array.isArray(parsed)){alert('JSON doit être un tableau');return}alert('Import local non branché à D1 sur cette page. Utilise le formulaire de saisie pour créer les données.');}catch(err){alert('JSON invalide')}};
+reader.readAsText(file);
+event.target.value='';
+}
+
+function resetFilters(){document.getElementById('searchInput').value='';document.getElementById('typeFilter').value='';document.getElementById('sourceFilter').value='';document.getElementById('techFilter').value='';renderTable()}
+
+const contextMenu=document.getElementById('contextMenu');
+document.addEventListener('contextmenu',e=>{
+const row=e.target.closest('tr');
+if(row){e.preventDefault();
+const tbody=document.getElementById('tableBody');
+const rows=tbody.querySelectorAll('tr');
+const rowIndex=Array.from(rows).indexOf(row);
+const filteredData=getFilteredData();
+const filteredItem=filteredData[rowIndex];
+if(!filteredItem)return;
+contextMenuItemIndex=getLoadData().findIndex(x=>x.id===filteredItem.id);
+contextMenu.style.left=e.pageX+'px';
+contextMenu.style.top=e.pageY+'px';
+contextMenu.classList.add('show');}
+});
+document.addEventListener('click',()=>contextMenu.classList.remove('show'));
+function editFromContext(){if(contextMenuItemIndex>=0)openEdit(contextMenuItemIndex);contextMenu.classList.remove('show')}
+function printFromContext(){if(contextMenuItemIndex>=0)printReceipt(contextMenuItemIndex);contextMenu.classList.remove('show')}
+function historyFromContext(){if(contextMenuItemIndex>=0){const data=getLoadData()[contextMenuItemIndex];openHistory(data.nom||'');}contextMenu.classList.remove('show')}
+function deleteFromContext(){if(contextMenuItemIndex>=0)deleteItem(contextMenuItemIndex);contextMenu.classList.remove('show')}
+
+document.addEventListener('DOMContentLoaded',async()=>{try{await fetchOps();maybeNotify()}catch(e){document.getElementById('emptyState').classList.remove('hidden');document.getElementById('emptyState').textContent='Erreur de chargement D1.'}})
+</script>
+</body>
+</html>
