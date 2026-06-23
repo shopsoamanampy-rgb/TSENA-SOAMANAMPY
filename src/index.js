@@ -1,5 +1,10 @@
 export default {
   async fetch(request, env) {
+    return new Response("API OK");
+  }
+}
+export default {
+  async fetch(request, env) {
     const url = new URL(request.url);
     const { pathname } = url;
 
