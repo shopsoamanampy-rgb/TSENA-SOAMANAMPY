@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commissions - CANAL+</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --line:#334155;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#38bdf8;
+      --shadow:0 10px 28px rgba(0,0,0,.3);
+      --radius:16px;
+      --red:#ef4444;
+      --blue:#2563eb;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; font-family:'Inter', Arial, sans-serif; }
+    body{
+      background: radial-gradient(circle at top, #1e293b 0, var(--bg) 45%);
+      color:var(--text);
+      padding:16px;
+      line-height:1.4;
+    }
+    .container{ max-width:1500px; margin:0 auto; }
+    header{
+      text-align:center;
+      margin-bottom:16px;
+      padding:20px 12px;
+      background: rgba(17,24,39,.75);
+      border:1px solid rgba(148,163,184,.18);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    header h1{ font-size: clamp(1.6rem, 2.4vw, 2.4rem); font-weight: 800; color:#fff; }
+    header p{ margin-top:6px; color:var(--muted); }
+    nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:16px;
+    }
+    nav button, .btn{
+      border:none;
+      padding:11px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      color:#fff;
+      background: linear-gradient(135deg, #334155, #1f2937);
+      box-shadow: var(--shadow);
+      transition:.2s ease;
+    }
+    nav button:hover, .btn:hover{ transform: translateY(-1px); }
+    .toolbar{
+      background: rgba(17,24,39,.9);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:16px;
+      margin-bottom:16px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .toolbar h2{ font-size:1.05rem; color:#fff; }
+    .toolbar .count{ color:var(--muted); font-weight:600; margin-top:4px; }
+    .btn-blue{ background: linear-gradient(135deg, #0ea5e9, #2563eb); }
+    .section{
+      background: rgba(17,24,39,.92);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:16px;
+      margin-bottom:16px;
+    }
+    .section h3{
+      font-size:1.05rem;
+      margin-bottom:12px;
+      color:#fff;
+      border-left:4px solid var(--accent);
+      padding-left:10px;
+    }
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:12px;
+    }
+    .stat{
+      background: rgba(15,23,42,.9);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:14px;
+      padding:14px;
+    }
+    .stat .label{ color:var(--muted); font-size:.88rem; margin-bottom:6px; }
+    .stat .value{ font-size:1.1rem; font-weight:800; color:#fff; }
+    .two-cols{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .table-like{
+      width:100%;
+      border-collapse:collapse;
+      overflow:hidden;
+      border-radius:12px;
+    }
+    .table-like th, .table-like td{
+      padding:10px 8px;
+      border-bottom:1px solid rgba(148,163,184,.12);
+      text-align:left;
+      vertical-align:top;
+      font-size:.92rem;
+    }
+    .table-like th{ color:#fff; background:rgba(30,41,59,.8); }
+    .table-like td{ color:#e5e7eb; }
+    .muted{ color:var(--muted); }
+    .detail{
+      margin-top:12px;
+      background: rgba(15,23,42,.9);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:14px;
+      padding:14px;
+    }
+    .detail h4{ color:#fff; margin-bottom:8px; }
+    .detail-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:10px;
+    }
+    .detail-item{
+      background: rgba(17,24,39,.85);
+      border:1px solid rgba(148,163,184,.12);
+      border-radius:12px;
+      padding:10px;
+    }
+    .detail-item .k{ color:var(--muted); font-size:.84rem; }
+    .detail-item .v{ color:#fff; font-weight:800; margin-top:4px; }
+    @media (max-width:900px){ .two-cols{ grid-template-columns:1fr; } }
+    @media (max-width:700px){
+      .toolbar{ flex-direction:column; align-items:flex-start; }
+      nav button{ flex:1; min-width:130px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💰 Commissions CANAL+</h1>
+      <p>Résumé des gains par source et technicien</p>
+    </header>
+
+    <nav>
+      <button onclick="window.location.href='index.html'">🏠 Accueil</button>
+      <button onclick="window.location.href='liste.html'">📋 Liste</button>
+      <button onclick="window.location.href='stock.html'">📦 Stock</button>
+      <button onclick="window.location.href='commissions.html'">💰 Commissions</button>
+    </nav>
+
+    <div class="toolbar">
+      <div>
+        <h2>Vue commissions</h2>
+        <div class="count" id="countOps">0 opération</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-blue" onclick="window.location.href='index.html'">➕ Nouvelle saisie</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Résumé global</h3>
+      <div class="summary-grid" id="globalSummary"></div>
+    </div>
+
+    <div class="section two-cols">
+      <div>
+        <h3>Sources</h3>
+        <table class="table-like">
+          <thead><tr><th>Nom</th><th>Total</th></tr></thead>
+          <tbody id="sourcesTable"></tbody>
+        </table>
+      </div>
+      <div>
+        <h3>Techniciens</h3>
+        <table class="table-like">
+          <thead><tr><th>Nom</th><th>Total</th></tr></thead>
+          <tbody id="techsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Détails par nom</h3>
+      <div id="detailsList"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "canalplus_operations";
+    let operations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    function formatMoney(n){ return (Number(n)||0).toLocaleString("fr-FR") + " Ar"; }
+    function createStat(label, value){ return `<div class="stat"><div class="label">${label}</div><div class="value">${value}</div></div>`; }
+
+    function renderGlobal(){
+      const totalToi = operations.reduce((a,o)=>a+(Number(o.commissionToi)||0),0);
+      const totalSources = operations.reduce((a,o)=>a+(Number(o.commissionSource)||0),0);
+      const totalTechs = operations.reduce((a,o)=>a+(Number(o.commissionTech)||0),0);
+
+      document.getElementById("globalSummary").innerHTML = [
+        createStat("Total opérations", operations.length),
+        createStat("Ta part", formatMoney(totalToi)),
+        createStat("Part sources", formatMoney(totalSources)),
+        createStat("Part techniciens", formatMoney(totalTechs))
+      ].join("");
+
+      document.getElementById("countOps").textContent = operations.length + (operations.length > 1 ? " opérations" : " opération");
+    }
+
+    function getTotalsByName(type){
+      const map = {};
+      operations.forEach(op => {
+        const name = String(op[type] || "").trim();
+        if(!name) return;
+        const amount = type === "source"
+          ? (Number(op.commissionSource) || 0)
+          : (Number(op.commissionTech) || 0);
+        map[name] = (map[name] || 0) + amount;
+      });
+      return Object.entries(map).sort((a,b) => b[1] - a[1]);
+    }
+
+    function renderTables(){
+      const sources = getTotalsByName("source");
+      const techs = getTotalsByName("technicien");
+
+      document.getElementById("sourcesTable").innerHTML = sources.length
+        ? sources.map(([name,total]) => `<tr><td>${name}</td><td>${formatMoney(total)}</td></tr>`).join("")
+        : `<tr><td colspan="2" class="muted">Aucune source</td></tr>`;
+
+      document.getElementById("techsTable").innerHTML = techs.length
+        ? techs.map(([name,total]) => `<tr><td>${name}</td><td>${formatMoney(total)}</td></tr>`).join("")
+        : `<tr><td colspan="2" class="muted">Aucun technicien</td></tr>`;
+    }
+
+    function renderDetails(){
+      const box = document.getElementById("detailsList");
+
+      if(!operations.length){
+        box.innerHTML = `<div class="detail muted">Aucune donnée enregistrée.</div>`;
+        return;
+      }
+
+      const names = [...new Set([
+        ...operations.map(o => o.source).filter(Boolean),
+        ...operations.map(o => o.technicien).filter(Boolean)
+      ])].sort();
+
+      box.innerHTML = names.map(name => {
+        const sourceOps = operations.filter(o => o.source === name);
+        const techOps = operations.filter(o => o.technicien === name);
+
+        const sourceDetails = sourceOps.map(o => `
+          <div class="detail-item">
+            <div class="k">Réabonnement / Vente</div>
+            <div class="v">${o.type === "reabonnement" ? "Réabonnement" : "Vente"} — ${o.date || ""}</div>
+            <div class="k" style="margin-top:6px;">Client</div>
+            <div class="v">${o.nom || ""} ${o.prenom || ""}</div>
+            <div class="k" style="margin-top:6px;">Carte</div>
+            <div class="v">${o.numCarte || ""}</div>
+            <div class="k" style="margin-top:6px;">Décodeur</div>
+            <div class="v">${o.numDecodeur || ""}</div>
+            <div class="k" style="margin-top:6px;">Commission source</div>
+            <div class="v">${formatMoney(o.commissionSource || 0)}</div>
+          </div>
+        `).join("");
+
+        const techDetails = techOps.map(o => `
+          <div class="detail-item">
+            <div class="k">Vente</div>
+            <div class="v">${o.date || ""}</div>
+            <div class="k" style="margin-top:6px;">Client</div>
+            <div class="v">${o.nom || ""} ${o.prenom || ""}</div>
+            <div class="k" style="margin-top:6px;">Carte</div>
+            <div class="v">${o.numCarte || ""}</div>
+            <div class="k" style="margin-top:6px;">Décodeur</div>
+            <div class="v">${o.numDecodeur || ""}</div>
+            <div class="k" style="margin-top:6px;">Commission technicien</div>
+            <div class="v">${formatMoney(o.commissionTech || 0)}</div>
+          </div>
+        `).join("");
+
+        return `
+          <div class="detail" style="margin-bottom:12px;">
+            <h4>${name}</h4>
+            <div class="detail-grid">
+              ${sourceDetails || ""}
+              ${techDetails || ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    renderGlobal();
+    renderTables();
+    renderDetails();
+  </script>
+</body>
+</html>
