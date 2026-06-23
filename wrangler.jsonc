@@ -1,16 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tsena-soamanampy",
-  "compatibility_date": "2026-06-21",
+  "name": "tsenasoamanampy",
+  "compatibility_date": "2026-06-22",
+  "main": "./src/index.js",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application"
+  },
   "observability": {
     "enabled": true
   },
-  "assets": {
-    "directory": "./public"
-  },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
   "d1_databases": [
     {
       "binding": "DB",
