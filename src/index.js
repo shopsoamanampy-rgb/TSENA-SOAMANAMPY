@@ -4,6 +4,15 @@ export default {
     const { pathname } = url;
 
     try {
+      if (pathname === "/api/health" && request.method === "GET") {
+        return Response.json({ ok: true, message: "Worker OK" });
+      }
+
+      if (pathname === "/api/test-db" && request.method === "GET") {
+        const result = await env.DB.prepare("SELECT 1 AS ok").first();
+        return Response.json({ ok: true, data: result });
+      }
+
       if (pathname === "/api/operations" && request.method === "GET") {
         const { results } = await env.DB.prepare(
           "SELECT * FROM operations ORDER BY date DESC, heure DESC"
