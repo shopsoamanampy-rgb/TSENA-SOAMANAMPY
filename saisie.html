@@ -321,29 +321,14 @@
   </div>
 
   <script>
-   const STORAGE_KEY = 'soamanampycanalplus_operations';
     let editId = null;
-    
+
     function normalizeContact(value) {
       return String(value || '').trim().replace(/\s+/g, '');
     }
 
     function generateId() {
-      return Date.now().toString(36) + Math.random().toString(36).slice(2);
-    }
-
-    function loadData() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveData(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
     }
 
     function setDefaultDateTime() {
@@ -361,6 +346,7 @@
       document.getElementById('montantGroup').classList.toggle('hidden', type === 'vente');
       document.getElementById('bouquet').required = type !== 'vente';
       document.getElementById('montant').required = type !== 'vente';
+      renderCalc();
     }
 
     function calcSaleCommission(source, technicien) {
@@ -469,19 +455,15 @@
       const typeLabel = type === 'reabo' ? 'Réabonnement' : 'Vente';
       const montant = commissions.montant;
 
-      const dateFin = type === 'reabo' ? addDays(dateVal, 29) : '';
-
       let h = '';
       h += '<div class="receipt-divider"></div>';
       h += '<div class="receipt-row"><span class="receipt-label">Type:</span><span class="receipt-value">' + typeLabel + '</span></div>';
       h += '<div class="receipt-row"><span class="receipt-label">Date:</span><span class="receipt-value">' + formatDateFR(dateVal) + '</span></div>';
       h += '<div class="receipt-row"><span class="receipt-label">Heure:</span><span class="receipt-value">' + heure + '</span></div>';
-      
       if (type === 'reabo') {
         h += '<div class="receipt-row"><span class="receipt-label">Durée:</span><span class="receipt-value">30 jours</span></div>';
         h += '<div class="receipt-divider"></div>';
       }
-      
       h += '<div class="receipt-row"><span class="receipt-label">Nom:</span><span class="receipt-value">' + nom + '</span></div>';
       h += '<div class="receipt-row"><span class="receipt-label">Prénom:</span><span class="receipt-value">' + prenom + '</span></div>';
       h += '<div class="receipt-row"><span class="receipt-label">Contact:</span><span class="receipt-value">' + contact + '</span></div>';
@@ -489,13 +471,11 @@
       h += '<div class="receipt-divider"></div>';
       h += '<div class="receipt-row"><span class="receipt-label">Carte:</span><span class="receipt-value">' + numCarte + '</span></div>';
       h += '<div class="receipt-row"><span class="receipt-label">Décodeur:</span><span class="receipt-value">' + numDecodeur + '</span></div>';
-
       if (type === 'reabo') {
         h += '<div class="receipt-row"><span class="receipt-label">Bouquet:</span><span class="receipt-value">' + bouquet + '</span></div>';
         h += '<div class="receipt-divider"></div>';
         h += '<div class="receipt-row"><span class="receipt-label">Montant:</span><span class="receipt-value">' + montant.toLocaleString('fr-FR') + ' Ar</span></div>';
       }
-
       h += '<div class="receipt-divider"></div>';
       document.getElementById('receiptPreview').innerHTML = h;
       document.getElementById('receiptModal').classList.add('show');
@@ -543,24 +523,20 @@
         commissionTech: commissions.commissionTech
       };
 
-      const data = loadData();
-      if (editId) {
-        const index = data.findIndex(x => x.id === editId);
-        if (index >= 0) data[index] = operation;
-      } else {
-        data.push(operation);
+      const res = await fetch('/api/operations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(operation)
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        alert('❌ Erreur sauvegarde: ' + (json.error || 'inconnue'));
+        return;
       }
-      saveData(data);
 
       alert(editId ? '✅ Modifié !' : '✅ Enregistré !');
-
-      if (!editId) {
-        resetForm();
-      } else {
-        window.history.replaceState({}, {}, window.location.pathname);
-        editId = null;
-        document.getElementById('formTitle').textContent = '➕ Nouvelle opération';
-      }
+      resetForm();
     });
 
     document.getElementById('source').addEventListener('input', renderCalc);
