@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @media print {
+            body { width: 72mm; margin: 0; padding: 0; }
+            .btn-print { display: none; }
+        }
+        body {
+            width: 72mm;
+            font-family: 'Arial Black', Gadget, sans-serif;
+            text-align: center;
+            margin: 0 auto;
+            padding: 2mm; /* Marge réduite pour plus d'espace */
+            color: black;
+            background-color: white;
+            overflow-x: hidden; /* Empêche le dépassement */
+        }
+        .btn-print {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .logo-container {
+            position: relative;
+            width: 35mm; /* Légèrement réduit pour éviter les bords */
+            height: 18mm;
+            margin: 5px auto 10px auto;
+            border: 2px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: black;
+        }
+        .logo-text { font-size: 30px; font-weight: 900; color: white; letter-spacing: -1px; }
+        .logo-slash { position: absolute; width: 2px; height: 100%; background: white; transform: rotate(20deg); }
+        .brand { font-size: 18px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; }
+        /* Texte forcé à tenir sur une ligne */
+        .distributeur { 
+            font-size: 12px; 
+            font-weight: 800; 
+            background: black; 
+            color: white; 
+            padding: 3px 5px; 
+            display: inline-block; 
+            margin-bottom: 10px; 
+            text-transform: uppercase;
+            white-space: nowrap; /* Empêche le retour à la ligne */
+        }
+        .services-wrapper { margin: 5px 0; border-top: 2px solid black; border-bottom: 2px solid black; padding: 5px 0; }
+        .service-row { font-size: 12px; font-weight: 700; padding: 2px 0; text-transform: uppercase; }
+        .contact-section { margin-top: 10px; font-size: 14px; font-weight: 900; }
+        .address-section { font-size: 10px; margin-top: 3px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print" onclick="window.print()">IMPRIMER LE TICKET</button>
+
+    <div class="logo-container">
+        <div class="logo-slash"></div>
+        <div class="logo-text">SM</div>
+    </div>
+    
+    <div class="brand">SOA MANAMPY</div>
+    <div class="distributeur">Distributeur Canal+ Agréé</div>
+    
+    <div class="services-wrapper">
+        <div class="service-row">Vente Matériel</div>
+        <div class="service-row">Réabonnement</div>
+        <div class="service-row">Installation</div>
+        <div class="service-row">Dépannage</div>
+    </div>
+
+    <div class="contact-section">
+        034 60 577 15
+    </div>
+    <div class="address-section">
+        AMPAMANTANANA ANDRONDRA
+    </div>
+
+</body>
+</html>
