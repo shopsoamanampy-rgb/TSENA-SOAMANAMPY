@@ -543,14 +543,16 @@
         commissionTech: commissions.commissionTech
       };
 
-      const data = loadData();
-      if (editId) {
-        const index = data.findIndex(x => x.id === editId);
-        if (index >= 0) data[index] = operation;
-      } else {
-        data.push(operation);
+      const res = await fetch('/api/operations', {
+        method: editId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(operation)
+      });
+
+      if (!res.ok) {
+        alert('❌ Erreur lors de l’enregistrement');
+        return;
       }
-      saveData(data);
 
       alert(editId ? '✅ Modifié !' : '✅ Enregistré !');
 
