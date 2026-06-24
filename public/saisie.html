@@ -543,7 +543,7 @@
         commissionTech: commissions.commissionTech
       };
 
-      const res = await fetch('/api/operations', {
+      const res = await fetch(editId ? `/api/operations/${editId}` : '/api/operations', {
         method: editId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(operation)

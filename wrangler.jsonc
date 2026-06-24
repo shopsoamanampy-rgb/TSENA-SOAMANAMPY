@@ -1,14 +1,24 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tsenasoamanampy",
-  "compatibility_date": "2026-06-21",
+  "name": "deuxsnm",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-22",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "."
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
   },
-  "compatibility_flags": [
-    "nodejs_compat"
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "operations-db",
+      "database_id": "0aeb7684-730c-4ea3-a03c-6799828c36d3"
+    }
   ]
 }
